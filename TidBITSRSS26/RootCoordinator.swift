@@ -28,10 +28,11 @@ final class RootCoordinator: RootCoordinatorType {
             let viewController = MasterViewController()
             processor.presenter = viewController
             viewController.processor = processor
-            rootViewController?.addChild(viewController)
-            rootViewController?.view.addSubview(viewController.view)
-            viewController.view.frame = rootViewController?.view.bounds ?? .zero
-            viewController.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            let navigationController = UINavigationController(rootViewController: viewController)
+            rootViewController?.addChild(navigationController)
+            rootViewController?.view.addSubview(navigationController.view)
+            navigationController.view.frame = rootViewController?.view.bounds ?? .zero
+            navigationController.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         }
     }
 }

@@ -21,7 +21,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		3F087DDD2F05755B00A89B00 /* TidBITSRSS26.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = file; path = TidBITSRSS26.xctestplan; sourceTree = "<group>"; };
+		3F087DDD2F05755B00A89B00 /* TidBITSRSS26.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = TidBITSRSS26.xctestplan; sourceTree = "<group>"; };
 		3F27005C2F02DE14004C9E81 /* TidBITSRSS26.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TidBITSRSS26.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3F9D929B2F0430A900CE33E5 /* TidBITSRSS26Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TidBITSRSS26Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */

@@ -16,12 +16,13 @@ private struct RootCoordinatorTests {
         #expect(window.rootViewController === viewController)
         do {
             #expect(viewController.children.count == 1)
-            let viewController = try #require(viewController.children[0] as? MasterViewController)
+            let navigationController = try #require(viewController.children[0] as? UINavigationController)
+            let viewController = try #require(navigationController.children[0] as? MasterViewController)
             let processor = try #require(subject.masterProcessor as? MasterProcessor)
             #expect(processor.coordinator === subject)
             #expect(processor.presenter === viewController)
             #expect(viewController.processor === processor)
-            #expect(viewController.view.isDescendant(of: subject.rootViewController!.view))
+            #expect(navigationController.view.isDescendant(of: subject.rootViewController!.view))
         }
     }
 }

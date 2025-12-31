@@ -13,6 +13,7 @@ private struct SceneDelegateTests {
         subject.bootstrap(scene: scene)
         let window = try #require(subject.window)
         #expect(window.isKeyWindow)
+        #expect(window.backgroundColor == .systemBackground)
         #expect(mockRootCoordinator.methodsCalled == ["createInterface(window:)"])
         #expect(mockRootCoordinator.window === window)
     }
