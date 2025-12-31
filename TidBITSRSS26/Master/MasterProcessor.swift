@@ -5,5 +5,18 @@ final class MasterProcessor: Processor {
 
     var state = MasterState()
 
-    func receive(_ action: MasterAction) async {}
+    func receive(_ action: MasterAction) async {
+        switch action {
+        case .viewDidAppear:
+            do {
+                if state.parsedData.isEmpty {
+                    state.parsedData = try await services.feedFetcher.fetchFeed()
+                    await presenter?.present(state)
+                }
+            } catch {
+                // TODO: Do something useful here
+                print("do something useful with this error")
+            }
+        }
+    }
 }

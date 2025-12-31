@@ -1,1 +1,3 @@
-struct MasterState {}
+struct MasterState: Equatable {
+    var parsedData = [FDPItem]()
+}

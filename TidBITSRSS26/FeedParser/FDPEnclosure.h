@@ -1,0 +1,41 @@
+//
+//  FDPEnclosure.h
+//  FeedParser
+//
+//  Created by Kevin Ballard on 11/20/09.
+//  Copyright 2009 Kevin Ballard. All rights reserved.
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+//
+//  The above copyright notice and this permission notice shall be included in all
+//  copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//  SOFTWARE.
+
+#import <Foundation/Foundation.h>
+
+@interface FDPEnclosure : NSObject <NSSecureCoding> {
+@private
+	NSString *url;
+	NSUInteger length;
+	NSString *type;
+}
+@property (nonatomic, readonly) NSString *url;
+@property (nonatomic, readonly) NSUInteger length;
+@property (nonatomic, readonly) NSString *type;
++ (id)enclosureWithURL:(NSString *)url length:(NSUInteger)length type:(NSString *)type;
+- (id)initWithURL:(NSString *)url length:(NSUInteger)length type:(NSString *)type;
+@end
+
+@compatibility_alias FPEnclosure FDPEnclosure;

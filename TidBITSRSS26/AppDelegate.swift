@@ -1,5 +1,8 @@
-
 import UIKit
+
+/// The single global Services instance is rooted here.
+@MainActor
+let services = Services()
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {

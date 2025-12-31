@@ -1,1 +1,3 @@
-enum MasterAction {}
+enum MasterAction: Equatable {
+    case viewDidAppear
+}

@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		3F087DD72F056A4600A89B00 /* WaitWhile in Frameworks */ = {isa = PBXBuildFile; productRef = 3F087DD62F056A4600A89B00 /* WaitWhile */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		3F9D929F2F0430A900CE33E5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -17,6 +21,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3F087DDD2F05755B00A89B00 /* TidBITSRSS26.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = file; path = TidBITSRSS26.xctestplan; sourceTree = "<group>"; };
 		3F27005C2F02DE14004C9E81 /* TidBITSRSS26.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TidBITSRSS26.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3F9D929B2F0430A900CE33E5 /* TidBITSRSS26Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TidBITSRSS26Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -24,6 +29,21 @@
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
 		3F27006E2F02DE15004C9E81 /* Exceptions for "TidBITSRSS26" folder in "TidBITSRSS26" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			additionalCompilerFlagsByRelativePath = {
+				FeedParser/Extensions/NSDate_FeedParserExtensions.m = "-fno-objc-arc";
+				FeedParser/Extensions/NSString_extensions.m = "-fno-objc-arc";
+				FeedParser/FDPCategory.m = "-fno-objc-arc";
+				FeedParser/FDPEnclosure.m = "-fno-objc-arc";
+				FeedParser/FDPFeed.m = "-fno-objc-arc";
+				FeedParser/FDPItem.m = "-fno-objc-arc";
+				FeedParser/FDPLink.m = "-fno-objc-arc";
+				FeedParser/FDPParser.m = "-fno-objc-arc";
+				FeedParser/Internal/FDPXMLPair.m = "-fno-objc-arc";
+				FeedParser/Internal/FDPXMLParser.m = "-fno-objc-arc";
+				"FeedParser/XML Extensions/FDPExtensionElementNode.m" = "-fno-objc-arc";
+				"FeedParser/XML Extensions/FDPExtensionNode.m" = "-fno-objc-arc";
+				"FeedParser/XML Extensions/FDPExtensionTextNode.m" = "-fno-objc-arc";
+			};
 			membershipExceptions = (
 				Info.plist,
 			);
@@ -59,6 +79,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3F087DD72F056A4600A89B00 /* WaitWhile in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -68,6 +89,7 @@
 		3F2700532F02DE14004C9E81 = {
 			isa = PBXGroup;
 			children = (
+				3F087DDD2F05755B00A89B00 /* TidBITSRSS26.xctestplan */,
 				3F27005E2F02DE14004C9E81 /* TidBITSRSS26 */,
 				3F9D929C2F0430A900CE33E5 /* TidBITSRSS26Tests */,
 				3F27005D2F02DE14004C9E81 /* Products */,
@@ -126,6 +148,7 @@
 			);
 			name = TidBITSRSS26Tests;
 			packageProductDependencies = (
+				3F087DD62F056A4600A89B00 /* WaitWhile */,
 			);
 			productName = TidBITSRSS26Tests;
 			productReference = 3F9D929B2F0430A900CE33E5 /* TidBITSRSS26Tests.xctest */;
@@ -159,6 +182,9 @@
 			);
 			mainGroup = 3F2700532F02DE14004C9E81;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				3F087DD52F056A4600A89B00 /* XCRemoteSwiftPackageReference "WaitWhile" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3F27005D2F02DE14004C9E81 /* Products */;
 			projectDirPath = "";
@@ -220,6 +246,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = TidBITSRSS26/Resources/feed.txt;
 				DEVELOPMENT_TEAM = W3LHX5RGV2;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TidBITSRSS26/Info.plist;
@@ -241,6 +268,7 @@
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "TidBITSRSS26/Bridging-Header.h";
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -254,6 +282,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = TidBITSRSS26/Resources/feed.txt;
 				DEVELOPMENT_TEAM = W3LHX5RGV2;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TidBITSRSS26/Info.plist;
@@ -275,6 +304,7 @@
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "TidBITSRSS26/Bridging-Header.h";
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -417,6 +447,7 @@
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -439,6 +470,7 @@
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -477,6 +509,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		3F087DD52F056A4600A89B00 /* XCRemoteSwiftPackageReference "WaitWhile" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mattneub/WaitWhile";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		3F087DD62F056A4600A89B00 /* WaitWhile */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3F087DD52F056A4600A89B00 /* XCRemoteSwiftPackageReference "WaitWhile" */;
+			productName = WaitWhile;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 3F2700542F02DE14004C9E81 /* Project object */;
 }

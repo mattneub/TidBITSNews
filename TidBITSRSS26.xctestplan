@@ -1,0 +1,36 @@
+{
+  "configurations" : [
+    {
+      "id" : "B8B62FF2-CBDC-459F-A76B-C251C32B6823",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "environmentVariableEntries" : [
+      {
+        "key" : "LOADLOCAL",
+        "value" : "1"
+      }
+    ],
+    "performanceAntipatternCheckerEnabled" : true,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:TidBITSRSS26.xcodeproj",
+      "identifier" : "3F27005B2F02DE14004C9E81",
+      "name" : "TidBITSRSS26"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:TidBITSRSS26.xcodeproj",
+        "identifier" : "3F9D929A2F0430A900CE33E5",
+        "name" : "TidBITSRSS26Tests"
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -8,6 +8,17 @@ class MasterViewController: UITableViewController, ReceiverPresenter {
         view.backgroundColor = .yellow
     }
 
-    func present(_ state: MasterState) async {}
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        Task {
+            await processor?.receive(.viewDidAppear)
+        }
+    }
+
+    func present(_ state: MasterState) async {
+        unlessTesting {
+            print(state)
+        }
+    }
 
 }
