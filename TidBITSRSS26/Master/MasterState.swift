@@ -1,3 +1,3 @@
 struct MasterState: Equatable {
-    var parsedData = [FDPItem]()
+    var parsedData = [FeedItem]()
 }

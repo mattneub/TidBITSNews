@@ -21,7 +21,7 @@ private struct MasterProcessorTests {
 
     @Test("viewDidAppear: if state parsed data is not empty, does nothing")
     func viewDidAppearNotEmpty() async {
-        let item = FDPItem()
+        let item = FeedItem(title: "Testing", guid: "testing")
         subject.state.parsedData = [item]
         await subject.receive(.viewDidAppear)
         #expect(feedFetcher.methodsCalled.isEmpty)

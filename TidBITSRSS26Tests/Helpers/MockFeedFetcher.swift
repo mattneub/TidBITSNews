@@ -3,9 +3,9 @@ import Testing
 
 final class MockFeedFetcher: FeedFetcherType {
     var methodsCalled = [String]()
-    var itemsToReturn = [FDPItem()]
+    var itemsToReturn: [FeedItem] = []
 
-    func fetchFeed() async throws -> [FDPItem] {
+    func fetchFeed() async throws -> [FeedItem] {
         methodsCalled.append(#function)
         return itemsToReturn
     }

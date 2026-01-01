@@ -22,9 +22,7 @@ private struct MasterDatasourceTests {
 
     @Test("present: configures the contents of the data source")
     func present() async {
-        let item = MockFDPItem()
-        item._guid = "testing"
-        item._title = "Testing"
+        let item = FeedItem(title: "Testing", guid: "testing")
         await subject.present(MasterState(parsedData: [item]))
         #expect(subject.data == [item])
         let snapshot = subject.datasource.snapshot()
@@ -35,9 +33,7 @@ private struct MasterDatasourceTests {
     @Test("cells are correctly constructed")
     func cells() async throws {
         makeWindow(view: tableView)
-        let item = MockFDPItem()
-        item._guid = "testing"
-        item._title = "Testing"
+        let item = FeedItem(title: "Testing", guid: "testing")
         await subject.present(MasterState(parsedData: [item]))
         let cell = try #require(tableView.cellForRow(at: IndexPath(row: 0, section: 0)))
         let content = try #require(cell.contentConfiguration as? UIListContentConfiguration)
@@ -45,10 +41,3 @@ private struct MasterDatasourceTests {
     }
 }
 
-nonisolated
-private final class MockFDPItem: FDPItem {
-    var _guid: String = ""
-    var _title: String = ""
-    override var guid: String { _guid }
-    override var title: String { _title }
-}

@@ -1,15 +1,15 @@
 /// Protocol expressing the public face of our FeedFetcher, so we can mock it for testing.
 protocol FeedFetcherType {
-    func fetchFeed() async throws -> [FDPItem]
+    func fetchFeed() async throws -> [FeedItem]
 }
 
 /// Service type that decides how to obtain the feed, obtains it, and parses it.
 final class FeedFetcher: FeedFetcherType {
     /// Fetch the feed, parse it, and return its list of items.
     /// - Returns: The list of items.
-    func fetchFeed() async throws -> [FDPItem] {
+    func fetchFeed() async throws -> [FeedItem] {
         let items = try await reallyFetchFeed()?.items as? [FDPItem]
-        return items ?? []
+        return (items ?? []).map(FeedItem.init)
     }
 
     /// Session to be used if we have to do actual networking; it's a var so we can mock for testing.

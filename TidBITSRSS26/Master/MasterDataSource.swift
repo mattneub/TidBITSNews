@@ -65,11 +65,11 @@ final class MasterDatasource: NSObject, MasterDatasourceType {
         await configureData(data: state.parsedData)
     }
 
-    var data = [FDPItem]()
+    var data = [FeedItem]()
 
     /// The data have arrived for the first time. Create the properties to hold the data
     /// and update the table. Done just once, at `present` time.
-    func configureData(data: [FDPItem]) async {
+    func configureData(data: [FeedItem]) async {
         // We only need to do this once.
         let snapshot = NSDiffableDataSourceSnapshot<String, String>()
         guard snapshot.itemIdentifiers.isEmpty else {

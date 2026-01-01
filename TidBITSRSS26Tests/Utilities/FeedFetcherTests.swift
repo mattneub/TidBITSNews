@@ -44,12 +44,15 @@ private struct FeedFetcherTests {
             return (URLResponse(), "howdy".data(using: .utf8)!)
         }
         let feed = MockFDPFeed()
-        feed._items = [FDPItem(), FDPItem()]
+        let item = MockFDPItem()
+        item._guid = "testing"
+        item._title = "title"
+        feed._items = [item]
         MockFeedParser.feedToReturn = feed
         let result = try? await subject.fetchFeed()
         #expect(MockFeedParser.methodsCalled == ["parsedFeed(with:)"])
         #expect(MockFeedParser.data == "howdy".data(using: .utf8))
-        #expect(result == feed._items as? [FDPItem])
+        #expect(result == [FeedItem(title: "title", guid: "testing")])
     }
 }
 
@@ -57,4 +60,12 @@ nonisolated
 private final class MockFDPFeed: FDPFeed {
     var _items = Array<Any>()
     override var items: Array<Any> { _items }
+}
+
+nonisolated
+private final class MockFDPItem: FDPItem {
+    var _guid: String = ""
+    var _title: String = ""
+    override var guid: String { _guid }
+    override var title: String { _title }
 }
