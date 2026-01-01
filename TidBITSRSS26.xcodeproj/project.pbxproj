@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3F087DD72F056A4600A89B00 /* WaitWhile in Frameworks */ = {isa = PBXBuildFile; productRef = 3F087DD62F056A4600A89B00 /* WaitWhile */; };
+		3FD854772F07333900513E78 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 3FD854762F07333900513E78 /* SnapshotTesting */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -80,6 +81,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3F087DD72F056A4600A89B00 /* WaitWhile in Frameworks */,
+				3FD854772F07333900513E78 /* SnapshotTesting in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -149,6 +151,7 @@
 			name = TidBITSRSS26Tests;
 			packageProductDependencies = (
 				3F087DD62F056A4600A89B00 /* WaitWhile */,
+				3FD854762F07333900513E78 /* SnapshotTesting */,
 			);
 			productName = TidBITSRSS26Tests;
 			productReference = 3F9D929B2F0430A900CE33E5 /* TidBITSRSS26Tests.xctest */;
@@ -184,6 +187,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				3F087DD52F056A4600A89B00 /* XCRemoteSwiftPackageReference "WaitWhile" */,
+				3FD854752F07333900513E78 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3F27005D2F02DE14004C9E81 /* Products */;
@@ -519,6 +523,14 @@
 				kind = branch;
 			};
 		};
+		3FD854752F07333900513E78 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-snapshot-testing";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.18.7;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -526,6 +538,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 3F087DD52F056A4600A89B00 /* XCRemoteSwiftPackageReference "WaitWhile" */;
 			productName = WaitWhile;
+		};
+		3FD854762F07333900513E78 /* SnapshotTesting */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3FD854752F07333900513E78 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */;
+			productName = SnapshotTesting;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

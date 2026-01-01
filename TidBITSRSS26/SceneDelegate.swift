@@ -22,6 +22,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func bootstrap(scene: UIWindowScene) {
         let window = UIWindow(windowScene: scene)
         window.backgroundColor = .systemBackground
+        window.tintColor = .myPurple
         self.window = window
         coordinator.createInterface(window: window)
         window.makeKeyAndVisible()

@@ -1,5 +1,4 @@
 @testable import TidBITSRSS26
-import Testing
 
 final class MockFeedParser: FeedParserType {
     nonisolated(unsafe) static var data: Data?

@@ -1,5 +1,4 @@
 @testable import TidBITSRSS26
-import Testing
 
 final class MockFeedFetcher: FeedFetcherType {
     var methodsCalled = [String]()

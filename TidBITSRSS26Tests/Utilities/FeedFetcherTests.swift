@@ -55,17 +55,3 @@ private struct FeedFetcherTests {
         #expect(result == [FeedItem(title: "title", guid: "testing")])
     }
 }
-
-nonisolated
-private final class MockFDPFeed: FDPFeed {
-    var _items = Array<Any>()
-    override var items: Array<Any> { _items }
-}
-
-nonisolated
-private final class MockFDPItem: FDPItem {
-    var _guid: String = ""
-    var _title: String = ""
-    override var guid: String { _guid }
-    override var title: String { _title }
-}

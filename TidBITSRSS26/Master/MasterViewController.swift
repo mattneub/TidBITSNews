@@ -22,7 +22,7 @@ class MasterViewController: UITableViewController, ReceiverPresenter {
         let logo = MyAccessibleNoActionImageView(image: UIImage(named:"tb_iphone_banner"))
         logo.contentMode = .center
         logo.translatesAutoresizingMaskIntoConstraints = false
-        logo.heightAnchor.constraint(equalToConstant: 58).isActive = true
+        logo.heightAnchor.constraint(equalToConstant: 58).activate()
         let tapper = MyTapGestureRecognizer(target: self, action: #selector(logoTapped))
         logo.addGestureRecognizer(tapper)
         logo.isUserInteractionEnabled = true

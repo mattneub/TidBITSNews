@@ -32,6 +32,8 @@ final class MasterDatasource: NSObject, MasterDatasourceType {
         tableView.dataSource = datasource
         tableView.delegate = self
         tableView.estimatedRowHeight = 100
+        tableView.separatorInset = .zero
+        tableView.separatorColor = .myPurple
     }
 
     /// Type alias for the type of the data source, for convenience.
@@ -51,13 +53,11 @@ final class MasterDatasource: NSObject, MasterDatasourceType {
     }
 
     func cellProvider(_ tableView: UITableView, _ indexPath: IndexPath, _ identifier: String) -> UITableViewCell? {
-        guard let item = data.first(where: { $0.guid == identifier }) else {
-            return UITableViewCell()
-        }
+        let item = data[indexPath.row]
         let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath)
-        var contentConfiguration = UIListContentConfiguration.cell()
-        contentConfiguration.text = item.title
+        let contentConfiguration = MasterCellContentConfiguration(feedItem: item)
         cell.contentConfiguration = contentConfiguration
+        cell.accessoryType = .disclosureIndicator
         return cell
     }
 

@@ -18,6 +18,8 @@ private struct MasterDatasourceTests {
         #expect(tableView.dataSource === datasource)
         #expect(tableView.delegate === subject)
         #expect(tableView.estimatedRowHeight == 100)
+        #expect(tableView.separatorInset == .zero)
+        #expect(tableView.separatorColor == .myPurple)
     }
 
     @Test("present: configures the contents of the data source")
@@ -33,11 +35,13 @@ private struct MasterDatasourceTests {
     @Test("cells are correctly constructed")
     func cells() async throws {
         makeWindow(view: tableView)
-        let item = FeedItem(title: "Testing", guid: "testing")
+        let item = FeedItem(title: "Testing", guid: "testing", blurb: "Blurb")
         await subject.present(MasterState(parsedData: [item]))
         let cell = try #require(tableView.cellForRow(at: IndexPath(row: 0, section: 0)))
-        let content = try #require(cell.contentConfiguration as? UIListContentConfiguration)
-        #expect(content.text == "Testing")
+        let content = try #require(cell.contentConfiguration as? MasterCellContentConfiguration)
+        #expect(content.text == item.attributedSummary)
+        let view = try #require(cell.contentView as? MasterCellContentView)
+        #expect(view.drawer.attributedText == content.text)
     }
 }
 

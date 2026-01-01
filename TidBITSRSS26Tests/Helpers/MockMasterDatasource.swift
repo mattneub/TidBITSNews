@@ -1,5 +1,4 @@
 @testable import TidBITSRSS26
-import Testing
 
 final class MockMasterDatasource: NSObject, @MainActor MasterDatasourceType {
     typealias State = MasterState
