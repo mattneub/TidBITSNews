@@ -63,18 +63,12 @@ private struct FeedItemTests {
         let summary = try #require(subject.attributedSummary)
         let attributedString = AttributedString(summary)
         let runs = attributedString.runs
-        #expect(runs.count == 4)
+        #expect(runs.count == 2)
         var index = runs.startIndex
         #expect(runs[index].attributes.uiKit.font?.fontName == "AvenirNextCondensed-DemiBold")
-        #expect(String(attributedString.characters[runs[index].range]) == "T")
-        index = runs.index(after: index)
-        #expect(runs[index].attributes.uiKit.font?.fontName == "AvenirNextCondensed-DemiBold")
-        #expect(String(attributedString.characters[runs[index].range]) == "itle\n")
+        #expect(String(attributedString.characters[runs[index].range]) == "Title\n")
         index = runs.index(after: index)
         #expect(runs[index].attributes.uiKit.font?.fontName == ".SFUI-Regular")
-        #expect(String(attributedString.characters[runs[index].range]) == "B")
-        index = runs.index(after: index)
-        #expect(runs[index].attributes.uiKit.font?.fontName == ".SFUI-Regular")
-        #expect(String(attributedString.characters[runs[index].range]) == "lurb")
+        #expect(String(attributedString.characters[runs[index].range]) == "Blurb")
     }
 }
