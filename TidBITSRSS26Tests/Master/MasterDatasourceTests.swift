@@ -43,5 +43,12 @@ private struct MasterDatasourceTests {
         let view = try #require(cell.contentView as? MasterCellContentView)
         #expect(view.drawer.attributedText == content.text)
     }
+
+    @Test("didSelect: sends selected with row")
+    func didSelect() async {
+        subject.tableView(tableView, didSelectRowAt: IndexPath(row: 0, section: 0))
+        await #while(processor.thingsReceived.isEmpty)
+        #expect(processor.thingsReceived == [.selected(0)])
+    }
 }
 

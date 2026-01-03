@@ -5,6 +5,9 @@ struct FeedItem: Equatable {
     var title: String = ""
     let guid: String
     var blurb: String?
+    var author: String?
+    var pubDate: Date = Date.distantPast
+    var content: String = ""
 }
 
 extension FeedItem {
@@ -14,6 +17,9 @@ extension FeedItem {
         self.guid = item.guid
         self.title = titleOfItem(item)
         self.blurb = blurbOfItem(item)
+        self.author = authorOfItem(item)
+        self.pubDate = item.pubDate
+        self.content = item.content
     }
 
     /// Munge the FDPItem's title to convert entities, of the form "&#123", to Unicode characters.
@@ -53,6 +59,19 @@ extension FeedItem {
         return blurb.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
+    func authorOfItem(_ item: FDPItem) -> String? {
+        guard let authorNodes = item.extensionElements(
+            withXMLNamespace: "http://www.tidbits.com/dummy",
+            elementName: "app_author_name"
+        ) else {
+            return nil
+        }
+        guard let authorNode = authorNodes.last as? FDPExtensionNode else {
+            return nil
+        }
+        return authorNode.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     var attributedSummary: NSAttributedString? {
         guard let proposedHeadlineFont = UIFont(name: "AvenirNextCondensed-DemiBold", size: 17) else {
             return nil // shouldn't happen
@@ -76,6 +95,24 @@ extension FeedItem {
 //            $0.lineBreakMode = .byWordWrapping
 //        }]))
         return NSAttributedString(content)
+    }
+
+    var attributedTitle: NSAttributedString? {
+        guard let summary = attributedSummary else {
+            return nil
+        }
+        let attributedString = AttributedString(summary)
+        if let cutoff = attributedString.characters.firstIndex(of: "\n") {
+            var titleString = attributedString[attributedString.startIndex..<cutoff]
+            titleString.mergeAttributes(.init([.paragraphStyle: NSMutableParagraphStyle().applying {
+                $0.firstLineHeadIndent = 4
+                $0.headIndent = 4
+                $0.tailIndent = -4
+            }]))
+            return NSAttributedString(AttributedString(titleString))
+        } else {
+            return nil
+        }
     }
 
 }

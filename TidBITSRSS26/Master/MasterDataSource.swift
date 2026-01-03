@@ -87,4 +87,9 @@ final class MasterDatasource: NSObject, MasterDatasourceType {
         await datasource?.apply(snapshot, animatingDifferences: animating)
     }
 
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        Task {
+            await processor?.receive(.selected(indexPath.row))
+        }
+    }
 }

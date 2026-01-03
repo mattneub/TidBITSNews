@@ -5,9 +5,11 @@ private struct MasterProcessorTests {
     let subject = MasterProcessor()
     let presenter = MockReceiverPresenter<Void, MasterState>()
     let feedFetcher = MockFeedFetcher()
+    let coordinator = MockRootCoordinator()
 
     init() {
         subject.presenter = presenter
+        subject.coordinator = coordinator
         services.feedFetcher = feedFetcher
     }
 
@@ -29,4 +31,13 @@ private struct MasterProcessorTests {
         #expect(presenter.statesPresented.isEmpty)
     }
 
+    @Test("selected: calls coordinator showDetail with feed item corresponding to row")
+    func selected() async {
+        let item0 = FeedItem(guid: "testing0")
+        let item1 = FeedItem(guid: "testing1")
+        subject.state.parsedData = [item0, item1]
+        await subject.receive(.selected(1))
+        #expect(coordinator.methodsCalled == ["showDetail(state:)"])
+        #expect(coordinator.detailState == DetailState(item: item1))
+    }
 }

@@ -2,13 +2,19 @@ import UIKit
 
 protocol RootCoordinatorType: AnyObject {
     func createInterface(window: UIWindow)
+    func showDetail(state: DetailState)
 }
 
 final class RootCoordinator: RootCoordinatorType {
     weak var rootViewController: UIViewController?
 
+    var navigationController: UINavigationController? {
+        rootViewController?.children.first as? UINavigationController
+    }
+
     var rootProcessor: (any Processor<RootAction, RootState, Void>)?
     var masterProcessor: (any Processor<MasterAction, MasterState, Void>)?
+    var detailProcessor: (any Processor<DetailAction, DetailState, Void>)?
 
     func createInterface(window: UIWindow) {
         do {
@@ -35,4 +41,16 @@ final class RootCoordinator: RootCoordinatorType {
             navigationController.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         }
     }
+
+    func showDetail(state: DetailState) {
+        let processor = DetailProcessor()
+        self.detailProcessor = processor
+        processor.coordinator = self
+        processor.state = state
+        let viewController = DetailViewController()
+        processor.presenter = viewController
+        viewController.processor = processor
+        navigationController?.pushViewController(viewController, animated: unlessTesting(true))
+    }
+
 }

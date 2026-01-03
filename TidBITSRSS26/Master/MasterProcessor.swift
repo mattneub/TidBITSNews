@@ -7,6 +7,8 @@ final class MasterProcessor: Processor {
 
     func receive(_ action: MasterAction) async {
         switch action {
+        case .selected(let row):
+            coordinator?.showDetail(state: DetailState(item: state.parsedData[row]))
         case .viewDidAppear:
             do {
                 if state.parsedData.isEmpty {

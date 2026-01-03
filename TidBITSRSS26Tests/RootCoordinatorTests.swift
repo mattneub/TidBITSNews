@@ -25,4 +25,16 @@ private struct RootCoordinatorTests {
             #expect(navigationController.view.isDescendant(of: subject.rootViewController!.view))
         }
     }
+
+    @Test("showDetail: sets up detail module and pushes it")
+    func showDetail() throws {
+        let window = UIWindow()
+        subject.createInterface(window: window)
+        subject.showDetail(state: DetailState(item: FeedItem(guid: "guid")))
+        let processor = try #require(subject.detailProcessor as? DetailProcessor)
+        #expect(processor.coordinator === subject)
+        let viewController = try #require(processor.presenter as? DetailViewController)
+        #expect(viewController.processor === processor)
+        #expect(subject.navigationController?.topViewController === viewController)
+    }
 }

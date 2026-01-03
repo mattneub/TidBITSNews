@@ -47,6 +47,7 @@ private struct FeedFetcherTests {
         let item = MockFDPItem()
         item._guid = "testing"
         item._title = "title"
+        item._pubDate = Date.distantPast
         feed._items = [item]
         MockFeedParser.feedToReturn = feed
         let result = try? await subject.fetchFeed()

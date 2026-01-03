@@ -3,18 +3,28 @@ import Testing
 import UIKit
 
 private struct FeedItemTests {
-    @Test("title deals correctly with html entities, guid is copied")
+    @Test("guid, pubDate, content are copied directly")
+    func guid() {
+        let item = MockFDPItem()
+        item._guid = "guid"
+        item._pubDate = Date.distantPast
+        item._content = "content"
+        let subject = FeedItem(fdpItem: item)
+        #expect(subject.guid == "guid")
+        #expect(subject.pubDate == Date.distantPast)
+        #expect(subject.content == "content")
+    }
+
+    @Test("title deals correctly with html entities")
     func title() {
         let item = MockFDPItem()
         item._title = "H&#233;ll&#246;"
-        item._guid = "guid"
         let subject = FeedItem(fdpItem: item)
         #expect(subject.title == "Héllö")
-        #expect(subject.guid == "guid")
     }
 
-    @Test("blurb correctly extracts blurb")
-    func blurb() {
+    @Test("blurb correctly extracts blurb, author correctly extracts author")
+    func blurbAndAuthor() {
         // I think the simplest way to do this is to let the feed parser parse some actual XML...
         let xml = """
         <?xml version="1.0" encoding="UTF-8"?>
@@ -54,7 +64,7 @@ private struct FeedItemTests {
         let item = feed.items.first as! FDPItem
         let subject = FeedItem(fdpItem: item)
         #expect(subject.blurb == "hey nonny nonny")
-        print(subject.blurb!)
+        #expect(subject.author == "Adam Engst")
     }
 
     @Test("attributedSummary: is correctly constructed")
@@ -70,5 +80,20 @@ private struct FeedItemTests {
         index = runs.index(after: index)
         #expect(runs[index].attributes.uiKit.font?.fontName == ".SFUI-Regular")
         #expect(String(attributedString.characters[runs[index].range]) == "Blurb")
+    }
+
+    @Test("attributedTitle: is correctly constructed")
+    func attributedTitle() throws {
+        let subject = FeedItem(title: "Title", guid: "guid", blurb: "Blurb")
+        let title = try #require(subject.attributedTitle)
+        let attributedString = AttributedString(title)
+        let runs = attributedString.runs
+        #expect(runs.count == 1)
+        let index = runs.startIndex
+        #expect(runs[index].attributes.uiKit.font?.fontName == "AvenirNextCondensed-DemiBold")
+        let style = try #require(runs[index].attributes.uiKit.paragraphStyle)
+        #expect(style.firstLineHeadIndent == 4)
+        #expect(style.headIndent == 4)
+        #expect(style.tailIndent == -4)
     }
 }
