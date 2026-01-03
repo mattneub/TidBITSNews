@@ -45,6 +45,7 @@ private struct DetailViewControllerTests {
 
     @Test("present: does substitution on contentString, loads web view with result")
     func presentWebView() async {
+        subject.traitOverrides.userInterfaceIdiom = .phone
         let webView = MockWebView()
         subject.webView = webView
         let state = DetailState(

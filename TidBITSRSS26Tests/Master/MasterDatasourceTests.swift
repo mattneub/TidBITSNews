@@ -20,6 +20,7 @@ private struct MasterDatasourceTests {
         #expect(tableView.estimatedRowHeight == 100)
         #expect(tableView.separatorInset == .zero)
         #expect(tableView.separatorColor == .myPurple)
+        #expect(tableView.allowsFocus == false)
     }
 
     @Test("present: configures the contents of the data source")
@@ -40,8 +41,10 @@ private struct MasterDatasourceTests {
         let cell = try #require(tableView.cellForRow(at: IndexPath(row: 0, section: 0)))
         let content = try #require(cell.contentConfiguration as? MasterCellContentConfiguration)
         #expect(content.text == item.attributedSummary)
-        let background = try #require(cell.backgroundConfiguration)
+        let background = try #require(cell.backgroundView)
         #expect(background.backgroundColor == .systemBackground)
+        let selectedBackground = try #require(cell.selectedBackgroundView)
+        #expect(selectedBackground.backgroundColor == .purple.withAlphaComponent(0.2))
         let view = try #require(cell.contentView as? MasterCellContentView)
         #expect(view.drawer.attributedText == content.text)
     }

@@ -34,6 +34,7 @@ final class MasterDatasource: NSObject, MasterDatasourceType {
         tableView.estimatedRowHeight = 100
         tableView.separatorInset = .zero
         tableView.separatorColor = .myPurple
+        tableView.allowsFocus = false // kill annoying "box" around cell when selected
     }
 
     /// Type alias for the type of the data source, for convenience.
@@ -58,9 +59,16 @@ final class MasterDatasource: NSObject, MasterDatasourceType {
         let contentConfiguration = MasterCellContentConfiguration(feedItem: item)
         cell.contentConfiguration = contentConfiguration
         cell.accessoryType = .disclosureIndicator
-        var backgroundConfiguration = UIBackgroundConfiguration.listCell()
-        backgroundConfiguration.backgroundColor = .systemBackground
-        cell.backgroundConfiguration = backgroundConfiguration
+        do {
+            let view = UIView()
+            view.backgroundColor = .systemBackground
+            cell.backgroundView = view
+        }
+        do {
+            let view = UIView()
+            view.backgroundColor = .purple.withAlphaComponent(0.2)
+            cell.selectedBackgroundView = view
+        }
         return cell
     }
 
