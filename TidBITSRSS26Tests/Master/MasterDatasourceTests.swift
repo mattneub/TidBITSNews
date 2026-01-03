@@ -40,6 +40,8 @@ private struct MasterDatasourceTests {
         let cell = try #require(tableView.cellForRow(at: IndexPath(row: 0, section: 0)))
         let content = try #require(cell.contentConfiguration as? MasterCellContentConfiguration)
         #expect(content.text == item.attributedSummary)
+        let background = try #require(cell.backgroundConfiguration)
+        #expect(background.backgroundColor == .systemBackground)
         let view = try #require(cell.contentView as? MasterCellContentView)
         #expect(view.drawer.attributedText == content.text)
     }

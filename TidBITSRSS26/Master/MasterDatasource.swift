@@ -58,6 +58,9 @@ final class MasterDatasource: NSObject, MasterDatasourceType {
         let contentConfiguration = MasterCellContentConfiguration(feedItem: item)
         cell.contentConfiguration = contentConfiguration
         cell.accessoryType = .disclosureIndicator
+        var backgroundConfiguration = UIBackgroundConfiguration.listCell()
+        backgroundConfiguration.backgroundColor = .systemBackground
+        cell.backgroundConfiguration = backgroundConfiguration
         return cell
     }
 

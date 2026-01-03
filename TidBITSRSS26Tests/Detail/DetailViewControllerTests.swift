@@ -4,14 +4,12 @@ import UIKit
 import WebKit
 import WaitWhile
 
-private struct MDetailiewControllerTests {
+private struct DetailViewControllerTests {
     let subject = DetailViewController()
     let processor = MockProcessor<DetailAction, DetailState, Void>()
-    let bundle = MockBundle()
 
     init() {
         subject.processor = processor
-        services.bundle = bundle
     }
 
     @Test("drawer label is correctly constructed")
@@ -29,13 +27,11 @@ private struct MDetailiewControllerTests {
         #expect(webView.translatesAutoresizingMaskIntoConstraints == false)
     }
 
-    @Test("viewDidLoad: constructs the interface, sends initialData")
+    @Test("viewDidLoad: constructs the interface")
     func viewDidLoad() async {
         subject.loadViewIfNeeded()
         #expect(subject.drawer.isDescendant(of: subject.view))
         #expect(subject.webView.isDescendant(of: subject.view))
-        await #while(processor.thingsReceived.isEmpty)
-        #expect(processor.thingsReceived == [.initialData])
     }
 
     @Test("present: sets the drawer's attributedText")
@@ -47,52 +43,49 @@ private struct MDetailiewControllerTests {
         #expect(subject.drawer.attributedText == state.item.attributedTitle)
     }
 
-    @Test("present: fetches template from bundle, does substitutions, loads web view with result")
+    @Test("present: does substitution on contentString, loads web view with result")
     func presentWebView() async {
         let webView = MockWebView()
         subject.webView = webView
-        let dateComponents = DateComponents(calendar: .init(identifier: .gregorian), year: 1954, month: 8, day: 10)
-        let date = dateComponents.date!
         let state = DetailState(
+            contentString: "<margin> is 5",
             item: FeedItem(
                 title: "Title",
                 guid: "guid",
                 blurb: "blurb",
                 author: "Author",
-                pubDate: date,
+                pubDate: Date.distantPast,
                 content: "Content"
-            )
+            ),
+            templateURL: URL(string: "https://www.example.com")
         )
-        let template = """
-        <maximagewidth> is 80%
-        <fontsize> is 18
-        <margin> is 5
-        <guid> is guid
-        <author> is Author
-        <content> is Content
-        http:// is https://
-        <date> is 10 August 1954
-        """
-        let tempURL = URL.temporaryDirectory.appending(path: "template")
-        bundle.urlToReturn = tempURL
-        try? FileManager.default.removeItem(at: tempURL)
-        try? template.write(to: tempURL, atomically: true, encoding: .utf8)
         await subject.present(state)
-        #expect(bundle.methodsCalled == ["url(forResource:withExtension:)"])
-        #expect(bundle.resource == "htmltemplate")
-        #expect(bundle.ext == "txt")
         #expect(webView.methodsCalled == ["loadHTMLString(_:baseURL:)"])
-        #expect(webView.baseURL == tempURL)
-        #expect(webView.string == """
-        80% is 80%
-        18 is 18
-        5 is 5
-        guid is guid
-        Author is Author
-        Content is Content
-        https:// is https://
-        10 August 1954 is 10 August 1954
-        """)
+        #expect(webView.baseURL == URL(string: "https://www.example.com")!)
+        #expect(webView.string == "5 is 5")
+    }
+
+    @Test("present: does substitution on contentString, loads web view with result, iPad version")
+    func presentWebViewPad() async {
+        subject.traitOverrides.userInterfaceIdiom = .pad
+        let webView = MockWebView()
+        subject.webView = webView
+        let state = DetailState(
+            contentString: "<margin> is 20",
+            item: FeedItem(
+                title: "Title",
+                guid: "guid",
+                blurb: "blurb",
+                author: "Author",
+                pubDate: Date.distantPast,
+                content: "Content"
+            ),
+            templateURL: URL(string: "https://www.example.com")
+        )
+        await subject.present(state)
+        #expect(webView.methodsCalled == ["loadHTMLString(_:baseURL:)"])
+        #expect(webView.baseURL == URL(string: "https://www.example.com")!)
+        #expect(webView.string == "20 is 20")
     }
 }
 

@@ -27,8 +27,8 @@ private struct MasterViewControllerTests {
     func backgroundColor() throws {
         subject.loadViewIfNeeded()
         let color = try #require(subject.view.backgroundColor)
-        #expect(color.resolvedColor(with: UITraitCollection(userInterfaceStyle: .light)) == .myPurple.withAlphaComponent(0.4))
-        #expect(color.resolvedColor(with: UITraitCollection(userInterfaceStyle: .dark)) == .myPurple.withAlphaComponent(0.7))
+        #expect(color.resolvedColor(with: UITraitCollection(userInterfaceStyle: .light)) == UIColor.myPurple * 0.4 + UIColor.white * 0.6)
+        #expect(color.resolvedColor(with: UITraitCollection(userInterfaceStyle: .dark)) == UIColor.myPurple * 0.8 + UIColor.black * 0.2)
     }
 
     @Test("viewDidLoad: logo view is correct")

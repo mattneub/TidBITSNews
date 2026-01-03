@@ -1,3 +1,3 @@
 enum DetailAction: Equatable {
-    case initialData
+    case newState(DetailState)
 }

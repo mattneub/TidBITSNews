@@ -8,8 +8,8 @@ protocol RootCoordinatorType: AnyObject {
 final class RootCoordinator: RootCoordinatorType {
     weak var rootViewController: UIViewController?
 
-    var navigationController: UINavigationController? {
-        rootViewController?.children.first as? UINavigationController
+    var splitViewController: UISplitViewController? {
+        rootViewController?.children.first as? UISplitViewController
     }
 
     var rootProcessor: (any Processor<RootAction, RootState, Void>)?
@@ -27,6 +27,13 @@ final class RootCoordinator: RootCoordinatorType {
             window.rootViewController = viewController
             self.rootViewController = viewController
         }
+        let splitViewController = UISplitViewController(style: .doubleColumn)
+        rootViewController?.addChild(splitViewController)
+        rootViewController?.view.addSubview(splitViewController.view)
+        splitViewController.view.frame = rootViewController?.view.bounds ?? .zero
+        splitViewController.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        splitViewController.preferredSplitBehavior = .tile
+        splitViewController.delegate = self
         do {
             let processor = MasterProcessor()
             self.masterProcessor = processor
@@ -34,23 +41,34 @@ final class RootCoordinator: RootCoordinatorType {
             let viewController = MasterViewController()
             processor.presenter = viewController
             viewController.processor = processor
-            let navigationController = UINavigationController(rootViewController: viewController)
-            rootViewController?.addChild(navigationController)
-            rootViewController?.view.addSubview(navigationController.view)
-            navigationController.view.frame = rootViewController?.view.bounds ?? .zero
-            navigationController.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            splitViewController.setViewController(viewController, for: .primary)
+        }
+        do {
+            let processor = DetailProcessor()
+            self.detailProcessor = processor
+            processor.coordinator = self
+            let viewController = DetailViewController()
+            processor.presenter = viewController
+            viewController.processor = processor
+            splitViewController.setViewController(viewController, for: .secondary)
         }
     }
 
     func showDetail(state: DetailState) {
-        let processor = DetailProcessor()
-        self.detailProcessor = processor
-        processor.coordinator = self
-        processor.state = state
-        let viewController = DetailViewController()
-        processor.presenter = viewController
-        viewController.processor = processor
-        navigationController?.pushViewController(viewController, animated: unlessTesting(true))
+        Task {
+            await detailProcessor?.receive(.newState(state))
+            splitViewController?.show(.secondary)
+        }
     }
 
+}
+
+extension RootCoordinator: UISplitViewControllerDelegate {
+    func splitViewController(
+        _ svc: UISplitViewController,
+        topColumnForCollapsingToProposedTopColumn proposedTopColumn: UISplitViewController.Column
+    ) -> UISplitViewController.Column {
+        print("collapse!")
+        return .primary
+    }
 }

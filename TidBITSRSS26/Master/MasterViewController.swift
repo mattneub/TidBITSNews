@@ -13,10 +13,8 @@ class MasterViewController: UITableViewController, ReceiverPresenter {
         super.viewDidLoad()
         view.backgroundColor = UIColor { traits in
             switch traits.userInterfaceStyle {
-            case .light: UIColor.myPurple.withAlphaComponent(0.4)
-            case .dark: UIColor.myPurple.withAlphaComponent(0.7)
-            case .unspecified: UIColor.myPurple.withAlphaComponent(0.4)
-            @unknown default: UIColor.myPurple.withAlphaComponent(0.4)
+            case .dark: UIColor.myPurple * 0.8 + UIColor.black * 0.2
+            default: UIColor.myPurple * 0.4 + UIColor.white * 0.6
             }
         }
         let logo = MyAccessibleNoActionImageView(image: UIImage(named:"tb_iphone_banner"))

@@ -7,6 +7,7 @@ class DetailViewController: UIViewController, ReceiverPresenter {
     lazy var drawer = DrawerLabel().applying { drawer in
         drawer.translatesAutoresizingMaskIntoConstraints = false
         drawer.numberOfLines = 0
+        drawer.isHidden = true
     }
 
     lazy var webView = WKWebView(frame: .zero, configuration: WKWebViewConfiguration().applying {
@@ -29,41 +30,20 @@ class DetailViewController: UIViewController, ReceiverPresenter {
             webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             webView.topAnchor.constraint(equalTo: drawer.bottomAnchor),
         ])
-        Task {
-            await processor?.receive(.initialData)
-        }
     }
 
     func present(_ state: DetailState) async {
         drawer.attributedText = state.item.attributedTitle
+        drawer.isHidden = false
         loadWebView(state)
     }
 
     func loadWebView(_ state: DetailState) {
-        guard let templateURL = services.bundle.url(forResource: "htmltemplate", withExtension: "txt") else {
-            return // shouldn't happen
-        }
-        guard var contentString = try? String(contentsOf: templateURL, encoding: .utf8) else {
-            return // shouldn't happen
-        }
+        // we have to do this part of the substitution, because we know what a trait collection is
+        // and the processor doesn't
+        // TODO: look into that
         let pad = self.traitCollection.userInterfaceIdiom == .pad // TODO: check this for collapse on iPad
-        contentString = contentString
-            .replacingOccurrences(of:"<maximagewidth>", with:"80%")
-            .replacingOccurrences(of:"<fontsize>", with: "18" /* String(self.fontsize) */)
-            .replacingOccurrences(of:"<margin>", with: pad ? "20" : "5")
-            .replacingOccurrences(of:"<guid>", with: state.item.guid)
-            .replacingOccurrences(of:"<author>", with: state.item.author ?? "")
-            .replacingOccurrences(of: "<content>", with: state.item.content)
-            .replacingOccurrences(of: "http://", with: "https://")
-            .replacingOccurrences(of:"<date>", with: { () -> String in
-                let format = Date.VerbatimFormatStyle(
-                    format: "\(day: .defaultDigits) \(month: .wide) \(year: .defaultDigits)",
-                    locale: Locale(identifier: "en_US"),
-                    timeZone: .autoupdatingCurrent,
-                    calendar: .init(identifier:.gregorian)
-                )
-                return state.item.pubDate.formatted(format)
-            }())
-        self.webView.loadHTMLString(contentString, baseURL: templateURL)
+        let contentString = state.contentString .replacingOccurrences(of:"<margin>", with: pad ? "20" : "5")
+        self.webView.loadHTMLString(contentString, baseURL: state.templateURL)
     }
 }
