@@ -5,7 +5,7 @@ import WaitWhile
 
 private struct MasterViewControllerTests {
     let subject = MasterViewController()
-    let processor = MockProcessor<MasterAction, MasterState, Void>()
+    let processor = MockProcessor<MasterAction, MasterState, MasterEffect>()
     let datasource = MockMasterDatasource()
 
     init() {
@@ -47,10 +47,20 @@ private struct MasterViewControllerTests {
         #expect(tapper.action == #selector(subject.logoTapped))
     }
 
-    @Test("viewDidLoad: table view edge is hard")
+    @Test("viewDidLoad: table view edge is hard, clearsSelection is false")
     func tableViewEdge() {
         subject.loadViewIfNeeded()
         #expect(subject.tableView.topEdgeEffect.style == .hard)
+        #expect(subject.clearsSelectionOnViewWillAppear == false)
+    }
+
+    @Test("viewDidLoad: configures backBarButton")
+    func backBarButton() throws {
+        subject.loadViewIfNeeded()
+        #expect(subject.navigationItem.title == "TidBITS")
+        let button = try #require(subject.navigationItem.backBarButtonItem)
+        #expect(button.title == "TidBITS")
+        #expect(button.tintColor == .myPurple)
     }
 
     @Test("viewDidAppear: sends processor viewDidAppear")
@@ -64,5 +74,11 @@ private struct MasterViewControllerTests {
     func present() async {
         await subject.present(MasterState())
         #expect(datasource.state == MasterState())
+    }
+
+    @Test("receive: passes to the datasource")
+    func receive() async {
+        await subject.receive(.select(0))
+        #expect(datasource.thingsReceived == [.select(0)])
     }
 }

@@ -2,7 +2,7 @@ import UIKit
 
 protocol RootCoordinatorType: AnyObject {
     func createInterface(window: UIWindow)
-    func showDetail(state: DetailState)
+    func showDetail(item: FeedItem)
 }
 
 final class RootCoordinator: RootCoordinatorType {
@@ -13,8 +13,8 @@ final class RootCoordinator: RootCoordinatorType {
     }
 
     var rootProcessor: (any Processor<RootAction, RootState, Void>)?
-    var masterProcessor: (any Processor<MasterAction, MasterState, Void>)?
-    var detailProcessor: (any Processor<DetailAction, DetailState, Void>)?
+    var masterProcessor: (any Processor<MasterAction, MasterState, MasterEffect>)?
+    var detailProcessor: (any Processor<DetailAction, DetailState, DetailEffect>)?
 
     func createInterface(window: UIWindow) {
         do {
@@ -47,6 +47,7 @@ final class RootCoordinator: RootCoordinatorType {
             let processor = DetailProcessor()
             self.detailProcessor = processor
             processor.coordinator = self
+            processor.delegate = masterProcessor as? DetailProcessorDelegate
             let viewController = DetailViewController()
             processor.presenter = viewController
             viewController.processor = processor
@@ -54,9 +55,9 @@ final class RootCoordinator: RootCoordinatorType {
         }
     }
 
-    func showDetail(state: DetailState) {
+    func showDetail(item: FeedItem) {
         Task {
-            await detailProcessor?.receive(.newState(state))
+            await detailProcessor?.receive(.newItem(item))
             splitViewController?.show(.secondary)
         }
     }

@@ -17,6 +17,28 @@ private struct DetailViewControllerTests {
         let drawer = subject.drawer
         #expect(drawer.translatesAutoresizingMaskIntoConstraints == false)
         #expect(drawer.numberOfLines == 0)
+        #expect(subject.drawer.adjustsFontForContentSizeCategory == true)
+    }
+
+    @Test("nextPrev segmented control is correctly constructed")
+    func nextPrev() throws {
+        let nextPrev = subject.nextPrev
+        #expect(nextPrev.isMomentary == true)
+        #expect(nextPrev.translatesAutoresizingMaskIntoConstraints == false)
+        #expect(nextPrev.titleTextAttributes(for: .normal)?[.foregroundColor] as? UIColor == UIColor.myPurple)
+        #expect(nextPrev.titleTextAttributes(for: .selected)?[.foregroundColor] as? UIColor == UIColor.white)
+        #expect(nextPrev.titleTextAttributes(for: .disabled)?[.foregroundColor] as? UIColor == .clear)
+        let constraint1 = nextPrev.constraints[0]
+        #expect(constraint1.firstAttribute == .height)
+        #expect(constraint1.constant == 34)
+        #expect(constraint1.isActive)
+        let constraint2 = nextPrev.constraints[1]
+        #expect(constraint2.firstAttribute == .width)
+        #expect(constraint2.constant == 126)
+        #expect(constraint2.isActive)
+        let action = nextPrev.actions(forTarget: subject, forControlEvent: .valueChanged)?.first
+        #expect(action == "doNextPrev:")
+        #expect(nextPrev.backgroundColor == .myPurple * 0.2 + .white * 0.8)
     }
 
     @Test("webView is correctly constructed")
@@ -28,10 +50,16 @@ private struct DetailViewControllerTests {
     }
 
     @Test("viewDidLoad: constructs the interface")
-    func viewDidLoad() async {
+    func viewDidLoad() async throws {
         subject.loadViewIfNeeded()
         #expect(subject.drawer.isDescendant(of: subject.view))
         #expect(subject.webView.isDescendant(of: subject.view))
+        #expect(subject.navigationItem.titleView === subject.nextPrev)
+        let button = try #require(subject.navigationItem.rightBarButtonItem)
+        #expect(button.image == UIImage(named: "fontsize"))
+        #expect(button.target === subject)
+        #expect(button.action == #selector(subject.doFontSize))
+        #expect(button.tintColor == .myPurple)
     }
 
     @Test("present: sets the drawer's attributedText")
@@ -87,6 +115,44 @@ private struct DetailViewControllerTests {
         #expect(webView.methodsCalled == ["loadHTMLString(_:baseURL:)"])
         #expect(webView.baseURL == URL(string: "https://www.example.com")!)
         #expect(webView.string == "20 is 20")
+    }
+
+    @Test("present: sets segmented control segment enablements based on state")
+    func presentSegmentedControlEnablements() async {
+        subject.loadViewIfNeeded()
+        var item = FeedItem(guid: "guid", isFirst: false, isLast: false)
+        await subject.present(DetailState(item: item))
+        #expect(subject.nextPrev.isEnabledForSegment(at: 0) == true)
+        #expect(subject.nextPrev.isEnabledForSegment(at: 1) == true)
+        item = FeedItem(guid: "guid", isFirst: true, isLast: false)
+        await subject.present(DetailState(item: item))
+        #expect(subject.nextPrev.isEnabledForSegment(at: 0) == false)
+        #expect(subject.nextPrev.isEnabledForSegment(at: 1) == true)
+        item = FeedItem(guid: "guid", isFirst: false, isLast: true)
+        await subject.present(DetailState(item: item))
+        #expect(subject.nextPrev.isEnabledForSegment(at: 0) == true)
+        #expect(subject.nextPrev.isEnabledForSegment(at: 1) == false)
+    }
+
+    @Test("doNextPrev: sends goNext/Prev depending on segment")
+    func doNextPrev() async {
+        let seg = UISegmentedControl(items: ["hey", "ho"])
+        seg.selectedSegmentIndex = 0
+        subject.doNextPrev(seg)
+        await #while(processor.thingsReceived.isEmpty)
+        #expect(processor.thingsReceived == [.goPrev])
+        processor.thingsReceived = []
+        seg.selectedSegmentIndex = 1
+        subject.doNextPrev(seg)
+        await #while(processor.thingsReceived.isEmpty)
+        #expect(processor.thingsReceived == [.goNext])
+    }
+
+    @Test("doFontSize: sends changeFontSize")
+    func doFontSize() async {
+        subject.doFontSize(subject)
+        await #while(processor.thingsReceived.isEmpty)
+        #expect(processor.thingsReceived == [.changeFontSize])
     }
 }
 

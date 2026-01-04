@@ -1,3 +1,6 @@
 enum DetailAction: Equatable {
-    case newState(DetailState)
+    case changeFontSize
+    case goNext
+    case goPrev
+    case newItem(FeedItem)
 }

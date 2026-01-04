@@ -10,7 +10,7 @@ protocol MasterDatasourceType<Received, State>: ReceiverPresenter, UITableViewDe
 /// Table view data source and delegate for the view controller's table view.
 final class MasterDatasource: NSObject, MasterDatasourceType {
     typealias State = MasterState
-    typealias Received = Void
+    typealias Received = MasterEffect
 
     /// Processor to whom we can send action messages.
     weak var processor: (any Receiver<MasterAction>)?
@@ -74,6 +74,17 @@ final class MasterDatasource: NSObject, MasterDatasourceType {
 
     func present(_ state: MasterState) async {
         await configureData(data: state.parsedData)
+    }
+
+    func receive(_ effect: MasterEffect) async {
+        switch effect {
+        case .select(let row):
+            tableView?.selectRow(
+                at: IndexPath(row: row, section: 0),
+                animated: true,
+                scrollPosition: .middle
+            )
+        }
     }
 
     var data = [FeedItem]()

@@ -35,6 +35,7 @@ private struct RootCoordinatorTests {
             #expect(subject.splitViewController?.viewController(for: .secondary) === viewController)
             let processor = try #require(subject.detailProcessor as? DetailProcessor)
             #expect(processor.coordinator === subject)
+            #expect(processor.delegate === subject.masterProcessor)
             #expect(processor.presenter === viewController)
             #expect(viewController.processor === processor)
         }
@@ -42,16 +43,16 @@ private struct RootCoordinatorTests {
 
     @Test("showDetail: sends state to detail processor and shows svc secondary")
     func showDetail() async throws {
-        let processor = MockProcessor<DetailAction, DetailState, Void>()
+        let processor = MockProcessor<DetailAction, DetailState, DetailEffect>()
         subject.detailProcessor = processor
         let splitViewController = MockSplitViewController()
         let viewController = UIViewController()
         subject.rootViewController = viewController
         viewController.addChild(splitViewController)
-        let state = DetailState(item: FeedItem(guid: "newguid"))
-        subject.showDetail(state: state)
+        let item = FeedItem(guid: "newguid")
+        subject.showDetail(item: item)
         await #while(processor.thingsReceived.isEmpty)
-        #expect(processor.thingsReceived == [.newState(state)])
+        #expect(processor.thingsReceived == [.newItem(item)])
         #expect(splitViewController.methodsCalled == ["show(_:)"])
         #expect(splitViewController.column == .secondary)
     }

@@ -4,16 +4,16 @@ import UIKit
 final class MockRootCoordinator: RootCoordinatorType {
     var methodsCalled = [String]()
     var window: UIWindow?
-    var detailState: DetailState?
+    var feedItem: FeedItem?
 
     func createInterface(window: UIWindow) {
         methodsCalled.append(#function)
         self.window = window
     }
 
-    func showDetail(state: DetailState) {
+    func showDetail(item: FeedItem) {
         methodsCalled.append(#function)
-        self.detailState = state
+        self.feedItem = item
     }
 }
 

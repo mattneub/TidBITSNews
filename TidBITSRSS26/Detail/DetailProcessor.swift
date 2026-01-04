@@ -3,14 +3,28 @@ import Foundation
 final class DetailProcessor: Processor {
     weak var coordinator: (any RootCoordinatorType)?
     
-    weak var presenter: (any ReceiverPresenter<Void, DetailState>)?
-    
+    weak var presenter: (any ReceiverPresenter<DetailEffect, DetailState>)?
+
+    weak var delegate: (any DetailProcessorDelegate)?
+
     var state = DetailState()
     
     func receive(_ action: DetailAction) async {
         switch action {
-        case .newState(let newState):
-            state = newState
+        case .changeFontSize:
+            var newFontSize = state.fontSize + 2
+            if newFontSize >= 26 {
+                newFontSize = 12
+            }
+            state.fontSize = newFontSize // TODO: and save into persistence
+            let jsToInject = "document.body.style.fontSize='\(newFontSize)px';'';"
+            await presenter?.receive(.newFontSize(jsToInject))
+        case .goNext:
+            await delegate?.goNext()
+        case .goPrev:
+            await delegate?.goPrev()
+        case .newItem(let newItem):
+            state.item = newItem
             loadHTML()
             await presenter?.present(state)
         }
@@ -25,7 +39,7 @@ final class DetailProcessor: Processor {
         }
         contentString = contentString
             .replacingOccurrences(of:"<maximagewidth>", with:"80%")
-            .replacingOccurrences(of:"<fontsize>", with: "18" /* String(self.fontsize) */)
+            .replacingOccurrences(of:"<fontsize>", with: String(state.fontSize))
             .replacingOccurrences(of:"<guid>", with: state.item.guid)
             .replacingOccurrences(of:"<author>", with: state.item.author ?? "")
             .replacingOccurrences(of: "<content>", with: state.item.content)
@@ -42,4 +56,9 @@ final class DetailProcessor: Processor {
         state.contentString = contentString
         state.templateURL = templateURL
     }
+}
+
+protocol DetailProcessorDelegate: AnyObject {
+    func goNext() async
+    func goPrev() async
 }

@@ -33,6 +33,16 @@ private struct MasterDatasourceTests {
         #expect(snapshot.itemIdentifiers(inSection: "dummy") == ["testing"])
     }
 
+    @Test("receive select: selectes the row of the table view")
+    func select() async {
+        makeWindow(view: tableView)
+        let item = FeedItem(title: "Testing", guid: "testing", blurb: "Blurb")
+        await subject.present(MasterState(parsedData: [item]))
+        #expect(tableView.indexPathForSelectedRow == nil)
+        await subject.receive(.select(0))
+        #expect(tableView.indexPathForSelectedRow == IndexPath(row: 0, section: 0))
+    }
+
     @Test("cells are correctly constructed")
     func cells() async throws {
         makeWindow(view: tableView)

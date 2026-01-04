@@ -8,6 +8,8 @@ struct FeedItem: Equatable {
     var author: String?
     var pubDate: Date = Date.distantPast
     var content: String = ""
+    var isFirst: Bool = false
+    var isLast: Bool = false
 }
 
 extension FeedItem {
