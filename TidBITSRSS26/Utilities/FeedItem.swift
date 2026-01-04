@@ -10,6 +10,7 @@ struct FeedItem: Equatable {
     var content: String = ""
     var isFirst: Bool = false
     var isLast: Bool = false
+    var hasBeenRead: Bool = false
 }
 
 extension FeedItem {

@@ -33,14 +33,32 @@ private struct MasterDatasourceTests {
         #expect(snapshot.itemIdentifiers(inSection: "dummy") == ["testing"])
     }
 
-    @Test("receive select: selectes the row of the table view")
-    func select() async {
+    @Test("receive select: selects the row of the table view, updates the data, updates the cell configuration")
+    func select() async throws {
         makeWindow(view: tableView)
         let item = FeedItem(title: "Testing", guid: "testing", blurb: "Blurb")
         await subject.present(MasterState(parsedData: [item]))
         #expect(tableView.indexPathForSelectedRow == nil)
+        #expect(subject.data[0].hasBeenRead == false)
+        do {
+            let configuration = try #require(
+                tableView.cellForRow(
+                    at: IndexPath(row: 0, section: 0)
+                )?.contentConfiguration as? MasterCellContentConfiguration
+            )
+            #expect(configuration.hasBeenRead == false)
+        }
         await subject.receive(.select(0))
         #expect(tableView.indexPathForSelectedRow == IndexPath(row: 0, section: 0))
+        #expect(subject.data[0].hasBeenRead == true)
+        do {
+            let configuration = try #require(
+                tableView.cellForRow(
+                    at: IndexPath(row: 0, section: 0)
+                )?.contentConfiguration as? MasterCellContentConfiguration
+            )
+            #expect(configuration.hasBeenRead == true)
+        }
     }
 
     @Test("cells are correctly constructed")
@@ -59,11 +77,104 @@ private struct MasterDatasourceTests {
         #expect(view.drawer.attributedText == content.text)
     }
 
-    @Test("didSelect: sends selected with row")
-    func didSelect() async {
+    @Test("didSelect: sends selected with row, updates the data, updates the cell configuration")
+    func didSelect() async throws {
+        makeWindow(view: tableView)
+        let item = FeedItem(title: "Testing", guid: "testing", blurb: "Blurb")
+        await subject.present(MasterState(parsedData: [item]))
+        #expect(tableView.indexPathForSelectedRow == nil)
+        #expect(subject.data[0].hasBeenRead == false)
+        do {
+            let configuration = try #require(
+                tableView.cellForRow(
+                    at: IndexPath(row: 0, section: 0)
+                )?.contentConfiguration as? MasterCellContentConfiguration
+            )
+            #expect(configuration.hasBeenRead == false)
+        }
         subject.tableView(tableView, didSelectRowAt: IndexPath(row: 0, section: 0))
         await #while(processor.thingsReceived.isEmpty)
         #expect(processor.thingsReceived == [.selected(0)])
+        #expect(subject.data[0].hasBeenRead == true)
+        do {
+            let configuration = try #require(
+                tableView.cellForRow(
+                    at: IndexPath(row: 0, section: 0)
+                )?.contentConfiguration as? MasterCellContentConfiguration
+            )
+            #expect(configuration.hasBeenRead == true)
+        }
+    }
+
+    @Test("trailing swipe action is Read/Unread, handler updates data, cell, processor")
+    func swipeActionHandler() async throws {
+        makeWindow(view: tableView)
+        let item = FeedItem(title: "Testing", guid: "testing", blurb: "Blurb")
+        await subject.present(MasterState(parsedData: [item]))
+        do {
+            #expect(subject.data[0].hasBeenRead == false)
+            let configuration = try #require(
+                tableView.cellForRow(
+                    at: IndexPath(row: 0, section: 0)
+                )?.contentConfiguration as? MasterCellContentConfiguration
+            )
+            #expect(configuration.hasBeenRead == false)
+        }
+        do {
+            let configuration = try #require(
+                subject.tableView(
+                    tableView,
+                    trailingSwipeActionsConfigurationForRowAt: IndexPath(row: 0, section: 0)
+                )
+            )
+            #expect(configuration.performsFirstActionWithFullSwipe == false)
+            let actions = configuration.actions
+            #expect(actions.count == 1)
+            let action = try #require(actions.first)
+            #expect(action.title == "Read")
+            var completed = false
+            action.handler(action, tableView, { _ in completed = true })
+            #expect(completed == true)
+            do {
+                #expect(subject.data[0].hasBeenRead == true)
+                let configuration = try #require(
+                    tableView.cellForRow(
+                        at: IndexPath(row: 0, section: 0)
+                    )?.contentConfiguration as? MasterCellContentConfiguration
+                )
+                #expect(configuration.hasBeenRead == true)
+            }
+            await #while(processor.thingsReceived.isEmpty)
+            #expect(processor.thingsReceived == [.updateHasBeenRead(true, for: 0)])
+        }
+        processor.thingsReceived = []
+        do {
+            let configuration = try #require(
+                subject.tableView(
+                    tableView,
+                    trailingSwipeActionsConfigurationForRowAt: IndexPath(row: 0, section: 0)
+                )
+            )
+            #expect(configuration.performsFirstActionWithFullSwipe == false)
+            let actions = configuration.actions
+            #expect(actions.count == 1)
+            let action = try #require(actions.first)
+            #expect(action.title == "Unread")
+            var completed = false
+            action.handler(action, tableView, { _ in completed = true })
+            #expect(completed == true)
+            do {
+                #expect(subject.data[0].hasBeenRead == false)
+                let configuration = try #require(
+                    tableView.cellForRow(
+                        at: IndexPath(row: 0, section: 0)
+                    )?.contentConfiguration as? MasterCellContentConfiguration
+                )
+                #expect(configuration.hasBeenRead == false)
+            }
+            await #while(processor.thingsReceived.isEmpty)
+            #expect(processor.thingsReceived == [.updateHasBeenRead(false, for: 0)])
+        }
     }
 }
 

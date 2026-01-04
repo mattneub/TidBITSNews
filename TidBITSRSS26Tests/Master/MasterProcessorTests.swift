@@ -18,6 +18,9 @@ private struct MasterProcessorTests {
 
     @Test("viewDidAppear: if state parsed data is empty, asks fetcher to fetch it, presents it")
     func viewDidAppear() async {
+        let item0 = FeedItem(guid: "testing0")
+        let item1 = FeedItem(guid: "testing1")
+        feedFetcher.itemsToReturn = [item0, item1]
         await subject.receive(.viewDidAppear)
         #expect(feedFetcher.methodsCalled == ["fetchFeed()"])
         #expect(subject.state.parsedData == feedFetcher.itemsToReturn)
@@ -34,7 +37,18 @@ private struct MasterProcessorTests {
         #expect(presenter.statesPresented.isEmpty)
     }
 
-    @Test("receive selected: calls coordinator showDetail with feed item corresponding to row, configured isFirst/Last")
+    @Test("viewDidAppear: configures parsed data hasBeenRead according to state guids")
+    func viewDidAppearHasBeenRead() async {
+        let item0 = FeedItem(guid: "testing0")
+        let item1 = FeedItem(guid: "testing1")
+        feedFetcher.itemsToReturn = [item0, item1]
+        subject.state.guidsOfReadItems = ["testing1"]
+        await subject.receive(.viewDidAppear)
+        #expect(subject.state.parsedData[0].hasBeenRead == false)
+        #expect(subject.state.parsedData[1].hasBeenRead == true)
+    }
+
+    @Test("receive selected: calls coordinator showDetail with configured feed item for row, updates guids, state feed item")
     func selected() async {
         let item0 = FeedItem(guid: "testing0")
         let item1 = FeedItem(guid: "testing1")
@@ -44,12 +58,29 @@ private struct MasterProcessorTests {
         #expect(coordinator.feedItem?.guid == "testing0")
         #expect(coordinator.feedItem?.isFirst == true)
         #expect(coordinator.feedItem?.isLast == false)
+        #expect(subject.state.guidsOfReadItems.contains("testing0"))
+        #expect(subject.state.parsedData[0].hasBeenRead == true)
         coordinator.methodsCalled = []
         await subject.receive(.selected(1))
         #expect(coordinator.methodsCalled == ["showDetail(item:)"])
         #expect(coordinator.feedItem?.guid == "testing1")
         #expect(coordinator.feedItem?.isFirst == false)
         #expect(coordinator.feedItem?.isLast == true)
+        #expect(subject.state.guidsOfReadItems.contains("testing1"))
+        #expect(subject.state.parsedData[1].hasBeenRead == true)
+    }
+
+    @Test("receive updateHasBeenRead: updates guids, state feed item")
+    func updateHasBeenRead() async {
+        let item0 = FeedItem(guid: "testing0")
+        let item1 = FeedItem(guid: "testing1")
+        subject.state.parsedData = [item0, item1]
+        await subject.receive(.updateHasBeenRead(true, for: 1))
+        #expect(subject.state.guidsOfReadItems.contains("testing1"))
+        #expect(subject.state.parsedData[1].hasBeenRead == true)
+        await subject.receive(.updateHasBeenRead(false, for: 1))
+        #expect(!subject.state.guidsOfReadItems.contains("testing1"))
+        #expect(subject.state.parsedData[1].hasBeenRead == false)
     }
 
     @Test("goNext: if can add 1 to state selected item index, does so, sends cycler selected and presenter select")

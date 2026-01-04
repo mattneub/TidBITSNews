@@ -79,11 +79,13 @@ final class MasterDatasource: NSObject, MasterDatasourceType {
     func receive(_ effect: MasterEffect) async {
         switch effect {
         case .select(let row):
+            let indexPath = IndexPath(row: row, section: 0)
             tableView?.selectRow(
-                at: IndexPath(row: row, section: 0),
+                at: indexPath,
                 animated: true,
                 scrollPosition: .middle
             )
+            updateHasBeenRead(true, for: indexPath)
         }
     }
 
@@ -112,6 +114,35 @@ final class MasterDatasource: NSObject, MasterDatasourceType {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         Task {
             await processor?.receive(.selected(indexPath.row))
+            updateHasBeenRead(true, for: indexPath)
         }
+    }
+
+    /// Update data model and cell when a feed item has been read or unread. Factored out because
+    /// there are three different ways we might come at this: the user tapped; selection was
+    /// changed programmatically; or a trailing swipe button.
+    func updateHasBeenRead(_ hasBeenRead: Bool, for indexPath: IndexPath) {
+        data[indexPath.row].hasBeenRead = hasBeenRead
+        let configuration = MasterCellContentConfiguration(feedItem: data[indexPath.row])
+        tableView?.cellForRow(at: indexPath)?.contentConfiguration = configuration
+    }
+
+    func tableView(
+        _ tableView: UITableView,
+        trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
+    ) -> UISwipeActionsConfiguration? {
+        let hasBeenRead = data[indexPath.row].hasBeenRead
+        let title: String = hasBeenRead ? "Unread" : "Read"
+        let action = UIContextualAction(style: .normal, title: title) { [weak self] action, view, completion in
+            completion(true)
+            self?.updateHasBeenRead(!hasBeenRead, for: indexPath)
+            Task {
+                // and tell the processor so it can keep the books
+                await self?.processor?.receive(.updateHasBeenRead(!hasBeenRead, for: indexPath.row))
+            }
+        }
+        let configuration = UISwipeActionsConfiguration(actions: [action])
+        configuration.performsFirstActionWithFullSwipe = false
+        return configuration
     }
 }

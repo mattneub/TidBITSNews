@@ -15,10 +15,24 @@ final class MasterProcessor: Processor {
             item.isFirst = row == 0
             item.isLast = row == state.parsedData.count - 1
             coordinator?.showDetail(item: item)
+            state.guidsOfReadItems.insert(item.guid)
+            state.parsedData[row].hasBeenRead = true
+        case .updateHasBeenRead(let hasBeenRead, let row):
+            state.parsedData[row].hasBeenRead = hasBeenRead
+            let guid = state.parsedData[row].guid
+            if hasBeenRead {
+                state.guidsOfReadItems.insert(guid)
+            } else {
+                state.guidsOfReadItems.remove(guid)
+            }
         case .viewDidAppear:
             do {
                 if state.parsedData.isEmpty {
                     state.parsedData = try await services.feedFetcher.fetchFeed()
+                    let guidsOfReadItems = state.guidsOfReadItems // copy so no simultaneous access
+                    state.parsedData.modifyEach {
+                        $0.hasBeenRead = guidsOfReadItems.contains($0.guid)
+                    }
                     await presenter?.present(state)
                 }
             } catch {

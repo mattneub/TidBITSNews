@@ -53,7 +53,7 @@ class MasterCellContentView: UIView, UIContentView {
         guard appliedConfiguration != newConfiguration else { return }
         appliedConfiguration = newConfiguration
         drawer.attributedText = newConfiguration.text
-        hasBeenRead.isHidden = !newConfiguration.displayHasBeenRead
+        hasBeenRead.isHidden = newConfiguration.hasBeenRead
     }
 }
 
@@ -63,7 +63,7 @@ struct MasterCellContentConfiguration: UIContentConfiguration, Equatable {
     // settable properties
 
     var text: NSAttributedString?
-    var displayHasBeenRead = true
+    var hasBeenRead = false
 
     // boilerplate
 
@@ -80,5 +80,6 @@ extension MasterCellContentConfiguration {
     /// Initializer from a feed item.
     init(feedItem: FeedItem) {
         self.text = feedItem.attributedSummary
+        self.hasBeenRead = feedItem.hasBeenRead
     }
 }

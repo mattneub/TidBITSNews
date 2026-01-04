@@ -6,7 +6,7 @@ import SnapshotTesting
 private struct MasterCellContentViewTests {
     @Test("Setting the content view's configuration configures the view correctly")
     func contentView() throws {
-        let feedItem = FeedItem(
+        var feedItem = FeedItem(
             title: "Title",
             guid: "guid",
             blurb: "Blurb"
@@ -27,6 +27,11 @@ private struct MasterCellContentViewTests {
         #expect(subject.hasBeenRead.constraints[1].constant == 18)
         let attributedText = try #require(subject.drawer.attributedText)
         #expect(attributedText == feedItem.attributedSummary)
+        #expect(subject.hasBeenRead.isHidden == false) // because feed item was false by default
+        feedItem.hasBeenRead = true
+        let configuration = MasterCellContentConfiguration(feedItem: feedItem)
+        subject.apply(configuration: configuration)
+        #expect(subject.hasBeenRead.isHidden == true)
     }
 
     @Test("View looks right")
