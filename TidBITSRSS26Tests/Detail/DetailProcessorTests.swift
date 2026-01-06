@@ -6,11 +6,13 @@ private struct DetailProcessorTests {
     let presenter = MockReceiverPresenter<DetailEffect, DetailState>()
     let delegate = MockDelegate()
     let bundle = MockBundle()
+    let persistence = MockPersistence()
 
     init() {
         subject.presenter = presenter
         subject.delegate = delegate
         services.bundle = bundle
+        services.persistence = persistence
     }
 
     @Test("receive changeFontSize: ups state font size, sends newFontSize with js")
@@ -18,6 +20,8 @@ private struct DetailProcessorTests {
         #expect(subject.state.fontSize == 18)
         await subject.receive(.changeFontSize)
         #expect(subject.state.fontSize == 20)
+        #expect(persistence.methodsCalled == ["saveSize(_:)"])
+        #expect(persistence.size == 20)
         let expectedJs = "document.body.style.fontSize='20px';'';"
         #expect(presenter.thingsReceived == [.newFontSize(expectedJs)])
         // cycles at 26
@@ -40,10 +44,16 @@ private struct DetailProcessorTests {
 
     @Test("receive newItem: sets item into state and presents it")
     func newItem() async {
+        persistence.size = 23
         let newItem = FeedItem(guid: "newguid")
         await subject.receive(.newItem(newItem))
+        #expect(subject.state.fontSize == 23)
         #expect(subject.state.item.guid == "newguid")
         #expect(presenter.statesPresented.first?.item.guid == "newguid")
+        // when no size, 18 is used
+        persistence.size = nil
+        await subject.receive(.newItem(newItem))
+        #expect(subject.state.fontSize == 18)
     }
 
     @Test("receive newItem: fetches template from bundle, configures state with result, presents")

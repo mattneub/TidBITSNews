@@ -7,6 +7,7 @@ private struct MasterProcessorTests {
     let feedFetcher = MockFeedFetcher()
     let coordinator = MockRootCoordinator()
     let cycler: MockCycler<MasterAction, MasterProcessor>!
+    let persistence = MockPersistence()
 
     init() {
         subject.presenter = presenter
@@ -14,6 +15,7 @@ private struct MasterProcessorTests {
         cycler = MockCycler(processor: subject)
         subject.cycler = cycler
         services.feedFetcher = feedFetcher
+        services.persistence = persistence
     }
 
     @Test("receive appearing: sends reloadTable")
@@ -41,6 +43,7 @@ private struct MasterProcessorTests {
         #expect(subject.state.parsedData == [item0, item1])
         #expect(subject.state.lastNetworkFetchDate == nil)
         #expect(presenter.statesPresented == [subject.state])
+        #expect(persistence.methodsCalled.isEmpty)
     }
 
     @Test("receive fetchFeed: updates feed items' hasBeenRead according to guids set")
@@ -53,9 +56,10 @@ private struct MasterProcessorTests {
         #expect(subject.state.parsedData[0].hasBeenRead == false)
         #expect(subject.state.parsedData[1].hasBeenRead == true)
         #expect(subject.state.lastNetworkFetchDate == nil)
+        #expect(persistence.methodsCalled.isEmpty)
     }
 
-    @Test("receive fetchFeed: sets state lastNetworkFetchDate, only if result type is network")
+    @Test("receive fetchFeed: sets state lastNetworkFetchDate, saves date to persistence, only if result type is network")
     func fetchFeedNetworkingDate() async {
         let item0 = FeedItem(guid: "testing0")
         let item1 = FeedItem(guid: "testing1")
@@ -63,6 +67,8 @@ private struct MasterProcessorTests {
         subject.state.guidsOfReadItems = ["testing1"]
         await subject.receive(.fetchFeed(forceNetwork: false))
         #expect(subject.state.lastNetworkFetchDate != nil) // *
+        #expect(persistence.methodsCalled == ["saveDate(_:)"])
+        #expect(persistence.date == subject.state.lastNetworkFetchDate)
     }
 
     @Test("receive fetchFeed: presents even if the call to feed fetcher throws")
@@ -86,7 +92,10 @@ private struct MasterProcessorTests {
         #expect(coordinator.feedItem?.isLast == false)
         #expect(subject.state.guidsOfReadItems.contains("testing0"))
         #expect(subject.state.parsedData[0].hasBeenRead == true)
+        #expect(persistence.methodsCalled == ["saveReadGuids(_:)"])
+        #expect(persistence.guids == subject.state.guidsOfReadItems)
         coordinator.methodsCalled = []
+        persistence.methodsCalled = []
         await subject.receive(.selected(1))
         #expect(coordinator.methodsCalled == ["showDetail(item:)"])
         #expect(coordinator.feedItem?.guid == "testing1")
@@ -94,6 +103,8 @@ private struct MasterProcessorTests {
         #expect(coordinator.feedItem?.isLast == true)
         #expect(subject.state.guidsOfReadItems.contains("testing1"))
         #expect(subject.state.parsedData[1].hasBeenRead == true)
+        #expect(persistence.methodsCalled == ["saveReadGuids(_:)"])
+        #expect(persistence.guids == subject.state.guidsOfReadItems)
     }
 
     @Test("receive updateHasBeenRead: updates guids, state feed item")
@@ -103,15 +114,24 @@ private struct MasterProcessorTests {
         subject.state.parsedData = [item0, item1]
         await subject.receive(.updateHasBeenRead(true, for: 1))
         #expect(subject.state.guidsOfReadItems.contains("testing1"))
+        #expect(persistence.methodsCalled == ["saveReadGuids(_:)"])
+        #expect(persistence.guids == subject.state.guidsOfReadItems)
         #expect(subject.state.parsedData[1].hasBeenRead == true)
+        persistence.methodsCalled = []
         await subject.receive(.updateHasBeenRead(false, for: 1))
         #expect(!subject.state.guidsOfReadItems.contains("testing1"))
+        #expect(persistence.methodsCalled == ["saveReadGuids(_:)"])
+        #expect(persistence.guids == subject.state.guidsOfReadItems)
         #expect(subject.state.parsedData[1].hasBeenRead == false)
     }
 
-    @Test("viewDidAppear: if state parsed data is empty, sends cycler fetchFeed")
+    @Test("viewDidAppear: if state parsed data is empty, configures state from persistence, sends cycler fetchFeed")
     func viewDidAppear() async {
+        persistence.date = .distantPast
+        persistence.guids = ["yoho"]
         await subject.receive(.viewDidAppear)
+        #expect(subject.state.lastNetworkFetchDate == .distantPast)
+        #expect(subject.state.guidsOfReadItems == ["yoho"])
         #expect(cycler.thingsReceived == [.fetchFeed(forceNetwork: false)])
     }
 
@@ -120,6 +140,7 @@ private struct MasterProcessorTests {
         let item = FeedItem(title: "Testing", guid: "testing")
         subject.state.parsedData = [item]
         await subject.receive(.viewDidAppear)
+        #expect(persistence.methodsCalled.isEmpty)
         #expect(cycler.thingsReceived.isEmpty)
     }
 

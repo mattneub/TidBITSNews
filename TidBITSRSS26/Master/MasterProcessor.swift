@@ -26,6 +26,7 @@ final class MasterProcessor: Processor {
             item.isLast = row == state.parsedData.count - 1
             coordinator?.showDetail(item: item)
             state.guidsOfReadItems.insert(item.guid)
+            services.persistence.saveReadGuids(state.guidsOfReadItems)
             state.parsedData[row].hasBeenRead = true
         case .updateHasBeenRead(let hasBeenRead, let row):
             state.parsedData[row].hasBeenRead = hasBeenRead
@@ -35,9 +36,11 @@ final class MasterProcessor: Processor {
             } else {
                 state.guidsOfReadItems.remove(guid)
             }
+            services.persistence.saveReadGuids(state.guidsOfReadItems)
         case .viewDidAppear:
-            // TODO: get fetch date from persistence
-            if state.parsedData.isEmpty {
+            if state.parsedData.isEmpty { // launching: restore date and guids from persistence and fetch
+                state.lastNetworkFetchDate = services.persistence.loadDate()
+                state.guidsOfReadItems = services.persistence.loadReadGuids()
                 await cycler.receive(.fetchFeed(forceNetwork: false))
             }
         }
@@ -54,8 +57,9 @@ final class MasterProcessor: Processor {
             $0.hasBeenRead = guidsOfReadItems.contains($0.guid)
         }
         if result?.type == .network {
-            state.lastNetworkFetchDate = Date.now
-            // TODO: save fetch date to persistence
+            let date = Date.now
+            state.lastNetworkFetchDate = date
+            services.persistence.saveDate(date)
         }
     }
 }

@@ -16,7 +16,8 @@ final class DetailProcessor: Processor {
             if newFontSize >= 26 {
                 newFontSize = 12
             }
-            state.fontSize = newFontSize // TODO: and save into persistence
+            state.fontSize = newFontSize
+            services.persistence.saveSize(newFontSize)
             let jsToInject = "document.body.style.fontSize='\(newFontSize)px';'';"
             await presenter?.receive(.newFontSize(jsToInject))
         case .goNext:
@@ -25,6 +26,7 @@ final class DetailProcessor: Processor {
             await delegate?.goPrev()
         case .newItem(let newItem):
             state.item = newItem
+            state.fontSize = services.persistence.loadSize() ?? 18
             loadHTML()
             await presenter?.present(state)
         }

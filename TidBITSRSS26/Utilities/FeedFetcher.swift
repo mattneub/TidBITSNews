@@ -47,12 +47,16 @@ final class FeedFetcher: FeedFetcherType {
             }
         }
         #endif
-        // TODO: If there is a saved feed, fetch it, parse it, and return the result
+        if !network, let items = await services.persistence.loadFeed() {
+            return(items, .persistence)
+        }
         if let url = URL(string: "https://tidbits.com/feeds/app_feed.rss") {
             let request = URLRequest(url: url)
             let (data, _) = try await session.data(for: request)
             let feed = try await services.feedParser.parsedFeed(with: data)
-            return (feed.toFeedItems, .network)
+            let items = feed.toFeedItems
+            await services.persistence.saveFeed(items)
+            return (items, .network)
         }
         return nil
     }

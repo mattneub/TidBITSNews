@@ -4,6 +4,7 @@ import WaitWhile
 
 private struct FeedFetcherTests {
     let subject = FeedFetcher()
+    let persistence = MockPersistence()
 
     static var session: URLSession = {
         let configuration: URLSessionConfiguration = .ephemeral
@@ -13,6 +14,7 @@ private struct FeedFetcherTests {
 
     init() {
         services.feedParser = MockFeedParser.self
+        services.persistence = persistence
         MockFeedParser.prepare()
         subject.session = Self.session
     }
@@ -38,8 +40,9 @@ private struct FeedFetcherTests {
         #expect(madeRequest?.url == URL(string: "https://tidbits.com/feeds/app_feed.rss")!)
     }
 
-    @Test("fetchFeed: calls parser, returns result")
-    func fetchFeedParser() async throws {
+    @Test("fetchFeed: if persistence is empty, networks, calls parser, saves feed, returns result")
+    func fetchFeedPersistenceEmpty() async throws {
+        persistence.feed = nil
         MockURLProtocol.requestHandler = { request in
             return (URLResponse(), "howdy".data(using: .utf8)!)
         }
@@ -51,6 +54,51 @@ private struct FeedFetcherTests {
         feed._items = [item]
         MockFeedParser.feedToReturn = feed
         let result = try? await subject.fetchFeed()
+        #expect(persistence.methodsCalled == ["loadFeed()", "saveFeed(_:)"])
+        #expect(persistence.feed == [FeedItem(title: "title", guid: "testing")])
+        #expect(MockFeedParser.methodsCalled == ["parsedFeed(with:)"])
+        #expect(MockFeedParser.data == "howdy".data(using: .utf8))
+        #expect(result?.items == [FeedItem(title: "title", guid: "testing")])
+        #expect(result?.type == .network)
+    }
+
+    @Test("fetchFeed: if persistence is not empty, does not network, does not call parser, returns result")
+    func fetchFeedPersistenceNotEmpty() async throws {
+        persistence.feed = [FeedItem(title: "title", guid: "testing2")] // *
+        MockURLProtocol.requestHandler = { request in
+            return (URLResponse(), "howdy".data(using: .utf8)!)
+        }
+        let feed = MockFDPFeed()
+        let item = MockFDPItem()
+        item._guid = "testing"
+        item._title = "title"
+        item._pubDate = Date.distantPast
+        feed._items = [item]
+        MockFeedParser.feedToReturn = feed
+        let result = try? await subject.fetchFeed()
+        #expect(persistence.methodsCalled == ["loadFeed()"]) // *
+        #expect(MockFeedParser.methodsCalled.isEmpty) // *
+        #expect(MockFeedParser.data == nil)
+        #expect(result?.items == [FeedItem(title: "title", guid: "testing2")])
+        #expect(result?.type == .persistence) // *
+    }
+
+    @Test("fetchFeed: if persistence is not empty but force networking, networks, calls parser, returns result")
+    func fetchFeedPersistenceNotEmptyForceNetworking() async throws {
+        persistence.feed = [FeedItem(title: "title", guid: "testing2")] // *
+        MockURLProtocol.requestHandler = { request in
+            return (URLResponse(), "howdy".data(using: .utf8)!)
+        }
+        let feed = MockFDPFeed()
+        let item = MockFDPItem()
+        item._guid = "testing"
+        item._title = "title"
+        item._pubDate = Date.distantPast
+        feed._items = [item]
+        MockFeedParser.feedToReturn = feed
+        let result = try? await subject.fetchFeed(true) // *
+        #expect(persistence.methodsCalled == ["saveFeed(_:)"]) // *
+        #expect(persistence.feed == [FeedItem(title: "title", guid: "testing")])
         #expect(MockFeedParser.methodsCalled == ["parsedFeed(with:)"])
         #expect(MockFeedParser.data == "howdy".data(using: .utf8))
         #expect(result?.items == [FeedItem(title: "title", guid: "testing")])

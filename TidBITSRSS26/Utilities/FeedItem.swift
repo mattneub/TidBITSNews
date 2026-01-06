@@ -2,7 +2,7 @@ import UIKit
 
 /// Reducer used to move feed item information around the app. In particular, this means that we
 /// never have to cross any isolation boundaries with an FDPFeed or an FDPItem.
-struct FeedItem: Equatable {
+struct FeedItem: Equatable, Codable {
     var title: String = ""
     let guid: String
     var blurb: String?
