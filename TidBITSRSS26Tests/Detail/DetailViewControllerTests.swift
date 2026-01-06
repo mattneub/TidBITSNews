@@ -17,7 +17,8 @@ private struct DetailViewControllerTests {
         let drawer = subject.drawer
         #expect(drawer.translatesAutoresizingMaskIntoConstraints == false)
         #expect(drawer.numberOfLines == 0)
-        #expect(subject.drawer.adjustsFontForContentSizeCategory == true)
+        #expect(drawer.adjustsFontForContentSizeCategory == true)
+        #expect(drawer.backgroundColor == .systemBackground)
     }
 
     @Test("nextPrev segmented control is correctly constructed")
@@ -38,7 +39,9 @@ private struct DetailViewControllerTests {
         #expect(constraint2.isActive)
         let action = nextPrev.actions(forTarget: subject, forControlEvent: .valueChanged)?.first
         #expect(action == "doNextPrev:")
-        #expect(nextPrev.backgroundColor == .myPurple * 0.2 + .white * 0.8)
+        let color = try #require(nextPrev.backgroundColor)
+        #expect(color.resolvedColor(with: UITraitCollection(userInterfaceStyle: .light)) == UIColor.myPurple * 0.2 + UIColor.white * 0.8)
+        #expect(color.resolvedColor(with: UITraitCollection(userInterfaceStyle: .dark)) == UIColor.myPurple * 0.8 + UIColor.black * 0.2)
     }
 
     @Test("webView is correctly constructed")
@@ -60,6 +63,14 @@ private struct DetailViewControllerTests {
         #expect(button.target === subject)
         #expect(button.action == #selector(subject.doFontSize))
         #expect(button.tintColor == .myPurple)
+    }
+
+    @Test("viewDidLoad: background color is correct")
+    func backgroundColor() throws {
+        subject.loadViewIfNeeded()
+        let color = try #require(subject.view.backgroundColor)
+        #expect(color.resolvedColor(with: UITraitCollection(userInterfaceStyle: .light)) == UIColor.myPurple * 0.4 + UIColor.white * 0.6)
+        #expect(color.resolvedColor(with: UITraitCollection(userInterfaceStyle: .dark)) == UIColor.myPurple * 0.8 + UIColor.black * 0.2)
     }
 
     @Test("present: sets the drawer's attributedText")

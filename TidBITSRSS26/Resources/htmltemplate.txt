@@ -55,6 +55,17 @@ font-size: 80%;
 a > img {
 display:inline;
 }
+@media (prefers-color-scheme: dark) {
+body {
+background-color: black;
+color: white;
+}
+a {
+color: pink;
+background-color: transparent;
+text-decoration: underline;
+}
+}
 </style>
   <title>no title</title>
 </head>

@@ -9,6 +9,7 @@ class DetailViewController: UIViewController, ReceiverPresenter {
         drawer.numberOfLines = 0
         drawer.isHidden = true
         drawer.adjustsFontForContentSizeCategory = true
+        drawer.backgroundColor = .systemBackground
     }
 
     lazy var webView = WKWebView(frame: .zero, configuration: WKWebViewConfiguration().applying {
@@ -39,11 +40,22 @@ class DetailViewController: UIViewController, ReceiverPresenter {
         $0.heightAnchor.constraint(equalToConstant: 34).activate()
         $0.widthAnchor.constraint(equalToConstant: 126).activate()
         $0.addTarget(self, action: #selector(doNextPrev), for: .valueChanged)
-        $0.backgroundColor = .myPurple * 0.2 + .white * 0.8
+        $0.backgroundColor = UIColor { traits in
+            switch traits.userInterfaceStyle {
+            case .dark: .myPurple * 0.8 + .black * 0.2
+            default: .myPurple * 0.2 + .white * 0.8
+            }
+        }
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = UIColor { traits in
+            switch traits.userInterfaceStyle {
+            case .dark: .myPurple * 0.8 + .black * 0.2
+            default: .myPurple * 0.4 + .white * 0.6
+            }
+        }
         view.addSubview(drawer)
         view.addSubview(webView)
         NSLayoutConstraint.activate([
@@ -106,3 +118,4 @@ class DetailViewController: UIViewController, ReceiverPresenter {
         }
     }
 }
+

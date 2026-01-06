@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3F087DD72F056A4600A89B00 /* WaitWhile in Frameworks */ = {isa = PBXBuildFile; productRef = 3F087DD62F056A4600A89B00 /* WaitWhile */; };
+		3F3EF6312F0DC7740006853F /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 3F3EF6302F0DC7740006853F /* AppIcon.icon */; };
 		3FD854772F07333900513E78 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 3FD854762F07333900513E78 /* SnapshotTesting */; };
 /* End PBXBuildFile section */
 
@@ -24,6 +25,7 @@
 /* Begin PBXFileReference section */
 		3F087DDD2F05755B00A89B00 /* TidBITSRSS26.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = TidBITSRSS26.xctestplan; sourceTree = "<group>"; };
 		3F27005C2F02DE14004C9E81 /* TidBITSRSS26.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TidBITSRSS26.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3F3EF6302F0DC7740006853F /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		3F9D929B2F0430A900CE33E5 /* TidBITSRSS26Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TidBITSRSS26Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -95,6 +97,7 @@
 				3F27005E2F02DE14004C9E81 /* TidBITSRSS26 */,
 				3F9D929C2F0430A900CE33E5 /* TidBITSRSS26Tests */,
 				3F27005D2F02DE14004C9E81 /* Products */,
+				3F3EF6302F0DC7740006853F /* AppIcon.icon */,
 			);
 			sourceTree = "<group>";
 		};
@@ -205,6 +208,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3F3EF6312F0DC7740006853F /* AppIcon.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -249,12 +253,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = TidBITSRSS26/Resources/feed.txt;
 				DEVELOPMENT_TEAM = W3LHX5RGV2;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TidBITSRSS26/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "TidBITS News";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = "";
@@ -285,12 +290,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = TidBITSRSS26/Resources/feed.txt;
 				DEVELOPMENT_TEAM = W3LHX5RGV2;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TidBITSRSS26/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "TidBITS News";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = "";

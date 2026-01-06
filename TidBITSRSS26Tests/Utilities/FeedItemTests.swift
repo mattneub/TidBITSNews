@@ -76,10 +76,12 @@ private struct FeedItemTests {
         #expect(runs.count == 2)
         var index = runs.startIndex
         #expect(runs[index].attributes.uiKit.font?.fontName == "AvenirNextCondensed-DemiBold")
+        #expect(runs[index].attributes.uiKit.foregroundColor == .label)
         #expect(String(attributedString.characters[runs[index].range]) == "Title\n")
         index = runs.index(after: index)
         #expect(runs[index].attributes.uiKit.font?.fontName == ".SFUI-Regular")
         #expect(String(attributedString.characters[runs[index].range]) == "Blurb")
+        #expect(runs[index].attributes.uiKit.foregroundColor == .label)
     }
 
     @Test("attributedTitle: is correctly constructed")
@@ -91,6 +93,7 @@ private struct FeedItemTests {
         #expect(runs.count == 1)
         let index = runs.startIndex
         #expect(runs[index].attributes.uiKit.font?.fontName == "AvenirNextCondensed-DemiBold")
+        #expect(runs[index].attributes.uiKit.foregroundColor == .label)
         let style = try #require(runs[index].attributes.uiKit.paragraphStyle)
         #expect(style.firstLineHeadIndent == 4)
         #expect(style.headIndent == 4)
