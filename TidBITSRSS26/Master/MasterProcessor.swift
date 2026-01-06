@@ -9,6 +9,16 @@ final class MasterProcessor: Processor {
 
     func receive(_ action: MasterAction) async {
         switch action {
+        case .appearing:
+            await presenter?.receive(.reloadTable)
+        case .fetchFeed(let force):
+            do {
+                try await fetchFeed(forceNetwork: force)
+            } catch {
+                print(error) // TODO: show user an alert?
+            }
+            // whether we succeeded or not, must now present to settle interface
+            await presenter?.present(state)
         case .selected(let row):
             state.selectedItemIndex = row
             var item = state.parsedData[row]
@@ -26,19 +36,26 @@ final class MasterProcessor: Processor {
                 state.guidsOfReadItems.remove(guid)
             }
         case .viewDidAppear:
-            do {
-                if state.parsedData.isEmpty {
-                    state.parsedData = try await services.feedFetcher.fetchFeed()
-                    let guidsOfReadItems = state.guidsOfReadItems // copy so no simultaneous access
-                    state.parsedData.modifyEach {
-                        $0.hasBeenRead = guidsOfReadItems.contains($0.guid)
-                    }
-                    await presenter?.present(state)
-                }
-            } catch {
-                // TODO: Do something useful here
-                print("do something useful with this error")
+            // TODO: get fetch date from persistence
+            if state.parsedData.isEmpty {
+                await cycler.receive(.fetchFeed(forceNetwork: false))
             }
+        }
+    }
+    
+    /// Fetch feed data from the feed fetcher and configure the state and persistence.
+    /// - Parameter forceNetwork: Whether to require fetching from the network even if we
+    /// have a stored feed already.
+    func fetchFeed(forceNetwork: Bool = false) async throws {
+        let result = try await services.feedFetcher.fetchFeed(forceNetwork)
+        state.parsedData = result?.items ?? []
+        let guidsOfReadItems = state.guidsOfReadItems // copy so no simultaneous access
+        state.parsedData.modifyEach {
+            $0.hasBeenRead = guidsOfReadItems.contains($0.guid)
+        }
+        if result?.type == .network {
+            state.lastNetworkFetchDate = Date.now
+            // TODO: save fetch date to persistence
         }
     }
 }

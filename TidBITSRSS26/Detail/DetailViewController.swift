@@ -83,10 +83,11 @@ class DetailViewController: UIViewController, ReceiverPresenter {
 
     func loadWebView(_ state: DetailState) {
         // we have to do this part of the substitution, because we know what a trait collection is
-        // and the processor doesn't
+        // and the processor / state doesn't
         // TODO: look into that
         let pad = self.traitCollection.userInterfaceIdiom == .pad // TODO: check this for collapse on iPad
-        let contentString = state.contentString .replacingOccurrences(of:"<margin>", with: pad ? "20" : "5")
+        let contentString = state.contentString
+            .replacingOccurrences(of:"<margin>", with: pad ? "20" : "5")
         self.webView.loadHTMLString(contentString, baseURL: state.templateURL)
     }
 

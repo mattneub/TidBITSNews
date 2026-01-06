@@ -9,6 +9,19 @@ class MasterViewController: UITableViewController, ReceiverPresenter {
         processor: processor
     )
 
+    /// One-shot spinner, shown only during app launch before we have data to display.
+    lazy var spinner = UIActivityIndicatorView(style: .large).applying {
+        $0.color = .black
+        $0.translatesAutoresizingMaskIntoConstraints = false
+    }
+
+    /// The table view's refresh control.
+    lazy var refresher = UIRefreshControl().applying {
+        $0.backgroundColor = UIColor(red: 0.251, green: 0, blue: 0.502, alpha: 1)
+        $0.tintColor = .white
+        $0.addTarget(self, action: #selector(doRefresh), for: .valueChanged)
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor { traits in
@@ -31,6 +44,21 @@ class MasterViewController: UITableViewController, ReceiverPresenter {
         navigationItem.backBarButtonItem = backButton
         tableView.topEdgeEffect.style = .hard
         clearsSelectionOnViewWillAppear = false
+        refreshControl = refresher
+        // show spinner during launch only
+        tableView.addSubview(spinner)
+        NSLayoutConstraint.activate([
+            spinner.centerXAnchor.constraint(equalTo: tableView.frameLayoutGuide.centerXAnchor),
+            spinner.centerYAnchor.constraint(equalTo: tableView.frameLayoutGuide.centerYAnchor),
+        ])
+        spinner.startAnimating()
+    }
+
+    override func viewIsAppearing(_ animated: Bool) {
+        super.viewIsAppearing(animated)
+        Task {
+            await processor?.receive(.appearing)
+        }
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -41,6 +69,9 @@ class MasterViewController: UITableViewController, ReceiverPresenter {
     }
 
     func present(_ state: MasterState) async {
+        spinner.removeFromSuperview()
+        refresher.endRefreshing()
+        refresher.attributedTitle = NSAttributedString(state.lastNetworkFetchDateStringAttributed ?? "")
         await datasource.present(state)
     }
 
@@ -49,4 +80,12 @@ class MasterViewController: UITableViewController, ReceiverPresenter {
     }
 
     @objc func logoTapped() {}
+
+    @objc func doRefresh(_ sender: UIRefreshControl) {
+        Task {
+            if sender.isRefreshing {
+                await processor?.receive(.fetchFeed(forceNetwork: true))
+            }
+        }
+    }
 }

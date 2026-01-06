@@ -38,7 +38,7 @@ private struct FeedFetcherTests {
         #expect(madeRequest?.url == URL(string: "https://tidbits.com/feeds/app_feed.rss")!)
     }
 
-    @Test("fetchFeed: calls parser, returns result items")
+    @Test("fetchFeed: calls parser, returns result")
     func fetchFeedParser() async throws {
         MockURLProtocol.requestHandler = { request in
             return (URLResponse(), "howdy".data(using: .utf8)!)
@@ -53,6 +53,7 @@ private struct FeedFetcherTests {
         let result = try? await subject.fetchFeed()
         #expect(MockFeedParser.methodsCalled == ["parsedFeed(with:)"])
         #expect(MockFeedParser.data == "howdy".data(using: .utf8))
-        #expect(result == [FeedItem(title: "title", guid: "testing")])
+        #expect(result?.items == [FeedItem(title: "title", guid: "testing")])
+        #expect(result?.type == .network)
     }
 }

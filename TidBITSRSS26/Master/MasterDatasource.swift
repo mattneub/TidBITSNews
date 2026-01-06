@@ -78,6 +78,9 @@ final class MasterDatasource: NSObject, MasterDatasourceType {
 
     func receive(_ effect: MasterEffect) async {
         switch effect {
+        case .reloadTable:
+            let snapshot = datasource.snapshot()
+            await datasource.applySnapshotUsingReloadData(snapshot)
         case .select(let row):
             let indexPath = IndexPath(row: row, section: 0)
             tableView?.selectRow(
@@ -91,24 +94,15 @@ final class MasterDatasource: NSObject, MasterDatasourceType {
 
     var data = [FeedItem]()
 
-    /// The data have arrived for the first time. Create the properties to hold the data
-    /// and update the table. Done just once, at `present` time.
+    /// The data have arrived. Create the properties to hold the data
+    /// and update the table. Done at `present` time (i.e. only when fetching the feed).
     func configureData(data: [FeedItem]) async {
-        // We only need to do this once.
-        let snapshot = NSDiffableDataSourceSnapshot<String, String>()
-        guard snapshot.itemIdentifiers.isEmpty else {
-            return
-        }
         self.data = data
-        await updateTable()
-    }
-
-    func updateTable(animating: Bool = false) async {
         var snapshot = datasource.snapshot()
         snapshot.deleteAllItems()
         snapshot.appendSections(["dummy"])
         snapshot.appendItems(data.map { $0.guid })
-        await datasource?.apply(snapshot, animatingDifferences: animating)
+        await datasource?.apply(snapshot, animatingDifferences: false)
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -123,8 +117,12 @@ final class MasterDatasource: NSObject, MasterDatasourceType {
     /// changed programmatically; or a trailing swipe button.
     func updateHasBeenRead(_ hasBeenRead: Bool, for indexPath: IndexPath) {
         data[indexPath.row].hasBeenRead = hasBeenRead
-        let configuration = MasterCellContentConfiguration(feedItem: data[indexPath.row])
-        tableView?.cellForRow(at: indexPath)?.contentConfiguration = configuration
+        // update the cell manually only if the table view is _showing_ — if it is not, we will get
+        // `.reloadTable` when it does show, and we will update from `data` at that time
+        if tableView?.window != nil {
+            let configuration = MasterCellContentConfiguration(feedItem: data[indexPath.row])
+            tableView?.cellForRow(at: indexPath)?.contentConfiguration = configuration
+        }
     }
 
     func tableView(

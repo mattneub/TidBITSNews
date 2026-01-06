@@ -97,3 +97,5 @@ private struct FeedItemTests {
         #expect(style.tailIndent == -4)
     }
 }
+
+extension NSParagraphStyle: @retroactive @unchecked Sendable {}

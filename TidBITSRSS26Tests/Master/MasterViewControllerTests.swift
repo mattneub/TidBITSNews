@@ -23,6 +23,22 @@ private struct MasterViewControllerTests {
         #expect(datasource.processor === subject.processor)
     }
 
+    @Test("spinner is correctly constructed")
+    func spinner() {
+        let spinner = subject.spinner
+        #expect(spinner.style == .large)
+        #expect(spinner.color == .black)
+        #expect(spinner.translatesAutoresizingMaskIntoConstraints == false)
+    }
+
+    @Test("refresher is correctly constructed")
+    func refresher() {
+        let refresher = subject.refresher
+        #expect(refresher.backgroundColor == UIColor(red: 0.251, green: 0, blue: 0.502, alpha: 1))
+        #expect(refresher.tintColor == .white)
+        #expect(refresher.actions(forTarget: subject, forControlEvent: .valueChanged)?.first == "doRefresh:")
+    }
+
     @Test("viewDidLoad: background color is correct")
     func backgroundColor() throws {
         subject.loadViewIfNeeded()
@@ -63,6 +79,14 @@ private struct MasterViewControllerTests {
         #expect(button.tintColor == .myPurple)
     }
 
+    @Test("viewDidLoad: sets up refresh control, spinner spins")
+    func refreshAndSpinner() {
+        subject.loadViewIfNeeded()
+        #expect(subject.refreshControl === subject.refresher)
+        #expect(subject.spinner.isAnimating)
+        #expect(subject.spinner.isDescendant(of: subject.view))
+    }
+
     @Test("viewDidAppear: sends processor viewDidAppear")
     func viewDidAppear() async {
         subject.viewDidAppear(false)
@@ -76,9 +100,32 @@ private struct MasterViewControllerTests {
         #expect(datasource.state == MasterState())
     }
 
+    @Test("present: removes spinner, stops and configures refresher")
+    func presentSpinnerRefresher() async {
+        makeWindow(viewController: subject)
+        #expect(subject.spinner.isDescendant(of: subject.view))
+        let state = MasterState(lastNetworkFetchDate: .now)
+        subject.refresher.beginRefreshing()
+        await subject.present(state)
+        #expect(!subject.spinner.isDescendant(of: subject.view))
+        #expect(!subject.refresher.isRefreshing)
+        #expect(subject.refresher.attributedTitle == NSAttributedString(state.lastNetworkFetchDateStringAttributed!))
+    }
+
     @Test("receive: passes to the datasource")
     func receive() async {
         await subject.receive(.select(0))
         #expect(datasource.thingsReceived == [.select(0)])
+    }
+
+    @Test("doRefresh: sends fetchFeed with forceNetwork true")
+    func doRefresh() async {
+        makeWindow(viewController: subject)
+        await #while(processor.thingsReceived.count < 2) // appearing, viewDidAppear
+        processor.thingsReceived = []
+        subject.refresher.beginRefreshing()
+        subject.doRefresh(subject.refresher)
+        await #while(processor.thingsReceived.isEmpty)
+        #expect(processor.thingsReceived == [.fetchFeed(forceNetwork: true)])
     }
 }

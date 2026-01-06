@@ -16,36 +16,62 @@ private struct MasterProcessorTests {
         services.feedFetcher = feedFetcher
     }
 
-    @Test("viewDidAppear: if state parsed data is empty, asks fetcher to fetch it, presents it")
-    func viewDidAppear() async {
+    @Test("receive appearing: sends reloadTable")
+    func appearing() async {
+        await subject.receive(.appearing)
+        #expect(presenter.thingsReceived == [.reloadTable])
+    }
+
+    @Test("receive fetchFeed: calls feed parser fetchFeed, sets state parsedData, presents it")
+    func fetchFeed() async {
         let item0 = FeedItem(guid: "testing0")
         let item1 = FeedItem(guid: "testing1")
-        feedFetcher.itemsToReturn = [item0, item1]
-        await subject.receive(.viewDidAppear)
-        #expect(feedFetcher.methodsCalled == ["fetchFeed()"])
-        #expect(subject.state.parsedData == feedFetcher.itemsToReturn)
+        feedFetcher.fetchResultToReturn = FetchResult(items: [item0, item1], type: .persistence)
+        await subject.receive(.fetchFeed(forceNetwork: false))
+        #expect(feedFetcher.methodsCalled == ["fetchFeed(_:)"])
+        #expect(feedFetcher.network == false)
+        #expect(subject.state.parsedData == [item0, item1])
+        #expect(presenter.statesPresented == [subject.state])
+        // and again, with true instead of false
+        presenter.statesPresented = []
+        feedFetcher.methodsCalled = []
+        await subject.receive(.fetchFeed(forceNetwork: true))
+        #expect(feedFetcher.methodsCalled == ["fetchFeed(_:)"])
+        #expect(feedFetcher.network == true)
+        #expect(subject.state.parsedData == [item0, item1])
+        #expect(subject.state.lastNetworkFetchDate == nil)
         #expect(presenter.statesPresented == [subject.state])
     }
 
-    @Test("viewDidAppear: if state parsed data is not empty, does nothing")
-    func viewDidAppearNotEmpty() async {
-        let item = FeedItem(title: "Testing", guid: "testing")
-        subject.state.parsedData = [item]
-        await subject.receive(.viewDidAppear)
-        #expect(feedFetcher.methodsCalled.isEmpty)
-        #expect(subject.state.parsedData == [item])
-        #expect(presenter.statesPresented.isEmpty)
-    }
-
-    @Test("viewDidAppear: configures parsed data hasBeenRead according to state guids")
-    func viewDidAppearHasBeenRead() async {
+    @Test("receive fetchFeed: updates feed items' hasBeenRead according to guids set")
+    func fetchFeedHasBeenRead() async {
         let item0 = FeedItem(guid: "testing0")
         let item1 = FeedItem(guid: "testing1")
-        feedFetcher.itemsToReturn = [item0, item1]
+        feedFetcher.fetchResultToReturn = FetchResult(items: [item0, item1], type: .persistence)
         subject.state.guidsOfReadItems = ["testing1"]
-        await subject.receive(.viewDidAppear)
+        await subject.receive(.fetchFeed(forceNetwork: false))
         #expect(subject.state.parsedData[0].hasBeenRead == false)
         #expect(subject.state.parsedData[1].hasBeenRead == true)
+        #expect(subject.state.lastNetworkFetchDate == nil)
+    }
+
+    @Test("receive fetchFeed: sets state lastNetworkFetchDate, only if result type is network")
+    func fetchFeedNetworkingDate() async {
+        let item0 = FeedItem(guid: "testing0")
+        let item1 = FeedItem(guid: "testing1")
+        feedFetcher.fetchResultToReturn = FetchResult(items: [item0, item1], type: .network) // *
+        subject.state.guidsOfReadItems = ["testing1"]
+        await subject.receive(.fetchFeed(forceNetwork: false))
+        #expect(subject.state.lastNetworkFetchDate != nil) // *
+    }
+
+    @Test("receive fetchFeed: presents even if the call to feed fetcher throws")
+    func fetchFeedThrow() async {
+        #expect(presenter.statesPresented.isEmpty)
+        enum Oops: Error { case ouch }
+        feedFetcher.errorToThrow = Oops.ouch
+        await subject.receive(.fetchFeed(forceNetwork: false))
+        #expect(presenter.statesPresented == [subject.state])
     }
 
     @Test("receive selected: calls coordinator showDetail with configured feed item for row, updates guids, state feed item")
@@ -81,6 +107,20 @@ private struct MasterProcessorTests {
         await subject.receive(.updateHasBeenRead(false, for: 1))
         #expect(!subject.state.guidsOfReadItems.contains("testing1"))
         #expect(subject.state.parsedData[1].hasBeenRead == false)
+    }
+
+    @Test("viewDidAppear: if state parsed data is empty, sends cycler fetchFeed")
+    func viewDidAppear() async {
+        await subject.receive(.viewDidAppear)
+        #expect(cycler.thingsReceived == [.fetchFeed(forceNetwork: false)])
+    }
+
+    @Test("viewDidAppear: if state parsed data is not empty, does nothing")
+    func viewDidAppearNotEmpty() async {
+        let item = FeedItem(title: "Testing", guid: "testing")
+        subject.state.parsedData = [item]
+        await subject.receive(.viewDidAppear)
+        #expect(cycler.thingsReceived.isEmpty)
     }
 
     @Test("goNext: if can add 1 to state selected item index, does so, sends cycler selected and presenter select")

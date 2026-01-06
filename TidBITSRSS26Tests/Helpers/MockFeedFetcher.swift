@@ -2,10 +2,16 @@
 
 final class MockFeedFetcher: FeedFetcherType {
     var methodsCalled = [String]()
-    var itemsToReturn: [FeedItem] = []
+    var network: Bool?
+    var fetchResultToReturn: FetchResult?
+    var errorToThrow: Error?
 
-    func fetchFeed() async throws -> [FeedItem] {
+    func fetchFeed(_ network: Bool) async throws -> FetchResult? {
         methodsCalled.append(#function)
-        return itemsToReturn
+        self.network = network
+        if let errorToThrow {
+            throw errorToThrow
+        }
+        return fetchResultToReturn
     }
 }

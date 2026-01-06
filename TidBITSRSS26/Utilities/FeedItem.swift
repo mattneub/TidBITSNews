@@ -1,6 +1,7 @@
 import UIKit
 
-/// Reducer used to move feed item information around the app.
+/// Reducer used to move feed item information around the app. In particular, this means that we
+/// never have to cross any isolation boundaries with an FDPFeed or an FDPItem.
 struct FeedItem: Equatable {
     var title: String = ""
     let guid: String
@@ -16,19 +17,19 @@ struct FeedItem: Equatable {
 extension FeedItem {
     /// Initialize from an FDPItem.
     /// - Parameter item: The FDPItem, as it came from the feed parser.
-    init(fdpItem item: FDPItem) {
+    nonisolated init(fdpItem item: FDPItem) {
         self.guid = item.guid
         self.title = titleOfItem(item)
         self.blurb = blurbOfItem(item)
         self.author = authorOfItem(item)
         self.pubDate = item.pubDate
-        self.content = item.content
+        self.content = item.content.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     /// Munge the FDPItem's title to convert entities, of the form "&#123", to Unicode characters.
     /// - Parameter item: The FDPItem.
     /// - Returns: The munged title.
-    func titleOfItem(_ item: FDPItem) -> String {
+    nonisolated func titleOfItem(_ item: FDPItem) -> String {
         var result = item.title ?? ""
         // deal with entities; in real life we seem to get just one sort of case,
         // which I can find and convert with a single regular expression
@@ -38,10 +39,10 @@ extension FeedItem {
                 result.replaceSubrange(match.range, with: String(scalar))
             }
         }
-        return result
+        return result.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    func blurbOfItem(_ item: FDPItem) -> String? {
+    nonisolated func blurbOfItem(_ item: FDPItem) -> String? {
         guard let blurbNodes = item.extensionElements(
             withXMLNamespace: "http://www.tidbits.com/dummy",
             elementName: "app_blurb"
@@ -62,7 +63,7 @@ extension FeedItem {
         return blurb.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    func authorOfItem(_ item: FDPItem) -> String? {
+    nonisolated func authorOfItem(_ item: FDPItem) -> String? {
         guard let authorNodes = item.extensionElements(
             withXMLNamespace: "http://www.tidbits.com/dummy",
             elementName: "app_author_name"
@@ -93,10 +94,6 @@ extension FeedItem {
             .foregroundColor(.black)
         )
         let content = content1 + content2
-        // we don't need this any longer but here's how to do it just in case
-//        content.mergeAttributes(.init([.paragraphStyle: NSMutableParagraphStyle().applying {
-//            $0.lineBreakMode = .byWordWrapping
-//        }]))
         return NSAttributedString(content)
     }
 
@@ -117,5 +114,4 @@ extension FeedItem {
             return nil
         }
     }
-
 }
