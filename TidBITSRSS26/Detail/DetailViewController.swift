@@ -13,6 +13,18 @@ class DetailViewController: UIViewController, ReceiverPresenter {
         drawer.isUserInteractionEnabled = true
         let tapper = MyTapGestureRecognizer(target: self, action: #selector(doTapTitle))
         drawer.addGestureRecognizer(tapper)
+        drawer.accessibilityTraits = .header
+    }
+
+    lazy var fontSizeButton = UIBarButtonItem(
+        image: UIImage(named: "fontsize"),
+        style: .plain,
+        target: self,
+        action: #selector(doFontSize)
+    ).applying {
+        $0.tintColor = .myPurple
+        $0.accessibilityLabel = "Font size"
+        $0.accessibilityHint = "Tap to change article font size."
     }
 
     lazy var webView = WKWebView(frame: .zero, configuration: WKWebViewConfiguration().applying {
@@ -50,6 +62,12 @@ class DetailViewController: UIViewController, ReceiverPresenter {
             default: .myPurple * 0.2 + .white * 0.8
             }
         }
+        if let image = $0.imageForSegment(at: 0) {
+            image.accessibilityLabel = "Previous article"
+        }
+        if let image = $0.imageForSegment(at: 1) {
+            image.accessibilityLabel = "Next article"
+        }
     }
 
     override func viewDidLoad() {
@@ -72,13 +90,6 @@ class DetailViewController: UIViewController, ReceiverPresenter {
             webView.topAnchor.constraint(equalTo: drawer.bottomAnchor),
         ])
         navigationItem.titleView = nextPrev
-        let fontSizeButton = UIBarButtonItem(
-            image: UIImage(named: "fontsize"),
-            style: .plain,
-            target: self,
-            action: #selector(doFontSize)
-        )
-        fontSizeButton.tintColor = .myPurple
         navigationItem.rightBarButtonItem = fontSizeButton
     }
 
@@ -88,12 +99,14 @@ class DetailViewController: UIViewController, ReceiverPresenter {
         loadWebView(state)
         nextPrev.setEnabled(!state.item.isFirst, forSegmentAt: 0)
         nextPrev.setEnabled(!state.item.isLast, forSegmentAt: 1)
+        fontSizeButton.accessibilityValue = String(state.fontSize)
     }
 
     func receive(_ effect: DetailEffect) async {
         switch effect {
-        case .newFontSize(let cssToInject):
+        case .newFontSize(let cssToInject, let newSize):
             _ = try? await webView.evaluateJavaScript(cssToInject)
+            fontSizeButton.accessibilityValue = String(newSize)
         }
     }
 

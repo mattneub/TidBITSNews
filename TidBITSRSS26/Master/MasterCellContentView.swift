@@ -66,6 +66,18 @@ class MasterCellContentView: UIView, UIContentView {
         appliedConfiguration = newConfiguration
         drawer.attributedText = newConfiguration.text
         hasBeenRead.isHidden = newConfiguration.hasBeenRead
+        if let splits = newConfiguration.text?.string.split(separator: "\n") {
+            if splits.count > 0 {
+                drawer.accessibilityLabel = "Article title"
+                drawer.accessibilityValue = String(splits[0])
+            }
+            if splits.count > 1 {
+                drawer.accessibilityHint = String(splits[1])
+            }
+        }
+        self.isAccessibilityElement = false
+        self.accessibilityElements = [drawer]
+        drawer.accessibilityTraits = .button
         adjustHasBeenReadTrailingConstraint()
     }
 }

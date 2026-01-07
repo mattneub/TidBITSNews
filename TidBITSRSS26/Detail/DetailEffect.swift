@@ -1,3 +1,3 @@
 enum DetailEffect: Equatable {
-    case newFontSize(String) // js to inject
+    case newFontSize(String, Int) // js to inject; actual size
 }

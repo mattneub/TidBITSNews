@@ -25,7 +25,7 @@ private struct DetailProcessorTests {
         #expect(persistence.methodsCalled == ["saveSize(_:)"])
         #expect(persistence.size == 20)
         let expectedJs = "document.body.style.fontSize='20px';'';"
-        #expect(presenter.thingsReceived == [.newFontSize(expectedJs)])
+        #expect(presenter.thingsReceived == [.newFontSize(expectedJs, 20)])
         // cycles at 26
         subject.state.fontSize = 26
         await subject.receive(.changeFontSize)

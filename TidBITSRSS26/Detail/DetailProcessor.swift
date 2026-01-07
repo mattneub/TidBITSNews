@@ -19,7 +19,7 @@ final class DetailProcessor: Processor {
             state.fontSize = newFontSize
             services.persistence.saveSize(newFontSize)
             let jsToInject = "document.body.style.fontSize='\(newFontSize)px';'';"
-            await presenter?.receive(.newFontSize(jsToInject))
+            await presenter?.receive(.newFontSize(jsToInject, newFontSize))
         case .doURL(let url):
             coordinator?.showURL(url)
         case .goNext:

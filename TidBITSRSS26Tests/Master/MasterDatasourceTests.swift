@@ -82,6 +82,7 @@ private struct MasterDatasourceTests {
         await subject.present(MasterState(parsedData: [item]))
         let cell = try #require(tableView.cellForRow(at: IndexPath(row: 0, section: 0)))
         #expect(cell is DisclosureTogglingCell)
+        #expect(cell.isAccessibilityElement == false)
         let content = try #require(cell.contentConfiguration as? MasterCellContentConfiguration)
         #expect(content.text == item.attributedSummary)
         let background = try #require(cell.backgroundView)

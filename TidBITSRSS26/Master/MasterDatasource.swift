@@ -68,6 +68,7 @@ final class MasterDatasource: NSObject, MasterDatasourceType {
             view.backgroundColor = .purple.withAlphaComponent(0.2)
             cell.selectedBackgroundView = view
         }
+        cell.isAccessibilityElement = false // defer to subviews
         return cell
     }
 

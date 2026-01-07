@@ -20,9 +20,21 @@ private struct DetailViewControllerTests {
         #expect(drawer.adjustsFontForContentSizeCategory == true)
         #expect(drawer.backgroundColor == .systemBackground)
         #expect(drawer.isUserInteractionEnabled == true)
+        #expect(drawer.accessibilityTraits == .header)
         let tapper = try #require(drawer.gestureRecognizers?[0] as? MyTapGestureRecognizer)
         #expect(tapper.target === subject)
         #expect(tapper.action == #selector(subject.doTapTitle))
+    }
+
+    @Test("fontSizeButton is correctly constructed")
+    func fontSizeButton() {
+        let button = subject.fontSizeButton
+        #expect(button.image == UIImage(named: "fontsize"))
+        #expect(button.target === subject)
+        #expect(button.action == #selector(subject.doFontSize))
+        #expect(button.tintColor == .myPurple)
+        #expect(button.accessibilityLabel == "Font size")
+        #expect(button.accessibilityHint == "Tap to change article font size.")
     }
 
     @Test("nextPrev segmented control is correctly constructed")
@@ -46,6 +58,12 @@ private struct DetailViewControllerTests {
         let color = try #require(nextPrev.backgroundColor)
         #expect(color.resolvedColor(with: UITraitCollection(userInterfaceStyle: .light)) == UIColor.myPurple * 0.2 + UIColor.white * 0.8)
         #expect(color.resolvedColor(with: UITraitCollection(userInterfaceStyle: .dark)) == UIColor.myPurple * 0.8 + UIColor.black * 0.2)
+        var image = try #require(nextPrev.imageForSegment(at: 0))
+        #expect(image == UIImage(named: "prev"))
+        #expect(image.accessibilityLabel == "Previous article")
+        image = try #require(nextPrev.imageForSegment(at: 1))
+        #expect(image == UIImage(named: "next"))
+        #expect(image.accessibilityLabel == "Next article")
     }
 
     @Test("webView is correctly constructed")
@@ -63,11 +81,7 @@ private struct DetailViewControllerTests {
         #expect(subject.drawer.isDescendant(of: subject.view))
         #expect(subject.webView.isDescendant(of: subject.view))
         #expect(subject.navigationItem.titleView === subject.nextPrev)
-        let button = try #require(subject.navigationItem.rightBarButtonItem)
-        #expect(button.image == UIImage(named: "fontsize"))
-        #expect(button.target === subject)
-        #expect(button.action == #selector(subject.doFontSize))
-        #expect(button.tintColor == .myPurple)
+        #expect(subject.navigationItem.rightBarButtonItem === subject.fontSizeButton)
     }
 
     @Test("viewDidLoad: background color is correct")
@@ -132,6 +146,17 @@ private struct DetailViewControllerTests {
         await subject.present(DetailState(item: item))
         #expect(subject.nextPrev.isEnabledForSegment(at: 0) == true)
         #expect(subject.nextPrev.isEnabledForSegment(at: 1) == false)
+    }
+
+    @Test("receive newFontSize: evaluates js, changes accessibility value of button")
+    func newFontSize() async {
+        let webView = MockWebView()
+        subject.webView = webView
+        subject.loadViewIfNeeded()
+        await subject.receive(.newFontSize("heyho", 42))
+        #expect(webView.methodsCalled == ["evaluateJavaScript(_:)"])
+        #expect(webView.js == "heyho")
+        #expect(subject.fontSizeButton.accessibilityValue == "42")
     }
 
     @Test("doNextPrev: sends goNext/Prev depending on segment")
@@ -203,11 +228,18 @@ private final class MockWebView: WKWebView {
     var methodsCalled = [String]()
     var string: String?
     var baseURL: URL?
+    var js: String?
 
     override func loadHTMLString(_ string: String, baseURL: URL?) -> WKNavigation? {
         methodsCalled.append(#function)
         self.string = string
         self.baseURL = baseURL
+        return nil
+    }
+
+    override func evaluateJavaScript(_ js: String) async throws -> Any? {
+        methodsCalled.append(#function)
+        self.js = js
         return nil
     }
 }
