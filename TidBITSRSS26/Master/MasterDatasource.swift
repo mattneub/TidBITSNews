@@ -27,7 +27,7 @@ final class MasterDatasource: NSObject, MasterDatasourceType {
         super.init()
         // We're going to use a diffable data source. Register the cell type, make the
         // diffable data source, and set the table view's dataSource and delegate.
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: reuseIdentifier)
+        tableView.register(DisclosureTogglingCell.self, forCellReuseIdentifier: reuseIdentifier)
         datasource = createDataSource(tableView: tableView)
         tableView.dataSource = datasource
         tableView.delegate = self
@@ -58,7 +58,6 @@ final class MasterDatasource: NSObject, MasterDatasourceType {
         let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath)
         let contentConfiguration = MasterCellContentConfiguration(feedItem: item)
         cell.contentConfiguration = contentConfiguration
-        cell.accessoryType = .disclosureIndicator
         do {
             let view = UIView()
             view.backgroundColor = .systemBackground

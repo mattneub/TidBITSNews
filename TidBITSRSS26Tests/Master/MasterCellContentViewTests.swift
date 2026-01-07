@@ -2,6 +2,7 @@
 import Testing
 import UIKit
 import SnapshotTesting
+import WaitWhile
 
 private struct MasterCellContentViewTests {
     @Test("Setting the content view's configuration configures the view correctly")
@@ -32,6 +33,27 @@ private struct MasterCellContentViewTests {
         let configuration = MasterCellContentConfiguration(feedItem: feedItem)
         subject.apply(configuration: configuration)
         #expect(subject.hasBeenRead.isHidden == true)
+    }
+
+    @Test("hasBeenReadTrailingConstraint constant value depends upon trait collection split view environment")
+    func constraint() async {
+        let feedItem = FeedItem(
+            title: "Title",
+            guid: "guid",
+            blurb: "Blurb"
+        )
+        let subject = MasterCellContentView(
+            configuration: MasterCellContentConfiguration(
+                feedItem: feedItem
+            )
+        )
+        let window = makeWindow(view: subject)
+        window.traitOverrides.splitViewControllerLayoutEnvironment = .collapsed
+        await #while(subject.traitCollection.splitViewControllerLayoutEnvironment != .collapsed)
+        #expect(subject.hasBeenReadTrailingConstraint.constant == 0)
+        window.traitOverrides.splitViewControllerLayoutEnvironment = .expanded
+        await #while(subject.traitCollection.splitViewControllerLayoutEnvironment != .expanded)
+        #expect(subject.hasBeenReadTrailingConstraint.constant == -10)
     }
 
     @Test("View looks right")

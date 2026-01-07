@@ -26,6 +26,10 @@ class MasterCellContentView: UIView, UIContentView {
         }
     }
 
+    lazy var hasBeenReadTrailingConstraint = hasBeenRead.trailingAnchor.constraint(
+        equalTo: trailingAnchor
+    )
+
     /// Boilerplate.
     init(configuration: MasterCellContentConfiguration) {
         super.init(frame: .zero)
@@ -36,10 +40,13 @@ class MasterCellContentView: UIView, UIContentView {
             drawer.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -4),
             drawer.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             hasBeenRead.centerYAnchor.constraint(equalTo: centerYAnchor),
-            hasBeenRead.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 0),
+            hasBeenReadTrailingConstraint,
             hasBeenRead.leadingAnchor.constraint(equalTo: drawer.trailingAnchor, constant: 10),
         ])
-
+        registerForTraitChanges(
+            [UITraitSplitViewControllerLayoutEnvironment.self],
+            action: #selector(adjustHasBeenReadTrailingConstraint)
+        )
         // boilerplate
         apply(configuration: configuration)
     }
@@ -48,12 +55,18 @@ class MasterCellContentView: UIView, UIContentView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    @objc func adjustHasBeenReadTrailingConstraint() {
+        let environment = traitCollection.splitViewControllerLayoutEnvironment
+        hasBeenReadTrailingConstraint.constant = environment == .collapsed ? 0 : -10
+    }
+
     /// Boilerplate, followed by application of the configuration properties to the interface.
     func apply(configuration newConfiguration: MasterCellContentConfiguration) {
         guard appliedConfiguration != newConfiguration else { return }
         appliedConfiguration = newConfiguration
         drawer.attributedText = newConfiguration.text
         hasBeenRead.isHidden = newConfiguration.hasBeenRead
+        adjustHasBeenReadTrailingConstraint()
     }
 }
 
