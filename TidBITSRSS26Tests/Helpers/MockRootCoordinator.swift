@@ -5,6 +5,7 @@ final class MockRootCoordinator: RootCoordinatorType {
     var methodsCalled = [String]()
     var window: UIWindow?
     var feedItem: FeedItem?
+    var url: URL?
 
     func createInterface(window: UIWindow) {
         methodsCalled.append(#function)
@@ -14,6 +15,11 @@ final class MockRootCoordinator: RootCoordinatorType {
     func showDetail(item: FeedItem) {
         methodsCalled.append(#function)
         self.feedItem = item
+    }
+
+    func showURL(_ url: URL) {
+        methodsCalled.append(#function)
+        self.url = url
     }
 }
 

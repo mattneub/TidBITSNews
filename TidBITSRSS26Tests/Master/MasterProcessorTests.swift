@@ -80,6 +80,13 @@ private struct MasterProcessorTests {
         #expect(presenter.statesPresented == [subject.state])
     }
 
+    @Test("receive logoTapped: calls coordinator showURL")
+    func logoTapped() async {
+        await subject.receive(.logoTapped)
+        #expect(coordinator.methodsCalled == ["showURL(_:)"])
+        #expect(coordinator.url == URL(string: "https://www.tidbits.com")!)
+    }
+
     @Test("receive selected: calls coordinator showDetail with configured feed item for row, updates guids, state feed item")
     func selected() async {
         let item0 = FeedItem(guid: "testing0")

@@ -3,16 +3,20 @@ import Testing
 import UIKit
 
 private struct FeedItemTests {
-    @Test("guid, pubDate, content are copied directly")
-    func guid() {
+    @Test("guid, pubDate, content, url are copied directly")
+    func guidPubDateContentUrl() {
         let item = MockFDPItem()
         item._guid = "guid"
         item._pubDate = Date.distantPast
         item._content = "content"
+        let link = MockFDPLink()
+        link._href = "http://www.example.com"
+        item._link = link
         let subject = FeedItem(fdpItem: item)
         #expect(subject.guid == "guid")
         #expect(subject.pubDate == Date.distantPast)
         #expect(subject.content == "content")
+        #expect(subject.url == URL(string: "http://www.example.com"))
     }
 
     @Test("title deals correctly with html entities")

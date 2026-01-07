@@ -7,10 +7,12 @@ private struct DetailProcessorTests {
     let delegate = MockDelegate()
     let bundle = MockBundle()
     let persistence = MockPersistence()
+    let coordinator = MockRootCoordinator()
 
     init() {
         subject.presenter = presenter
         subject.delegate = delegate
+        subject.coordinator = coordinator
         services.bundle = bundle
         services.persistence = persistence
     }
@@ -28,6 +30,14 @@ private struct DetailProcessorTests {
         subject.state.fontSize = 26
         await subject.receive(.changeFontSize)
         #expect(subject.state.fontSize == 12)
+    }
+
+    @Test("receive doURL: calls coordinator showURL")
+    func doURL() async {
+        let url = URL(string: "https://www.example.com")!
+        await subject.receive(.doURL(url))
+        #expect(coordinator.methodsCalled == ["showURL(_:)"])
+        #expect(coordinator.url == url)
     }
 
     @Test("receive goNext: calls delegate goNext")
@@ -72,6 +82,14 @@ private struct DetailProcessorTests {
         #expect(subject.state.template == "template")
         #expect(subject.state.templateURL == tempURL)
         #expect(presenter.statesPresented == [subject.state])
+    }
+
+    @Test("receive tapTitle: calls coordinator showURL with feed item url")
+    func tapTitle() async {
+        subject.state.item.url = URL(string: "https://www.example.com")!
+        await subject.receive(.tapTitle)
+        #expect(coordinator.methodsCalled == ["showURL(_:)"])
+        #expect(coordinator.url == URL(string: "https://www.example.com")!)
     }
 }
 

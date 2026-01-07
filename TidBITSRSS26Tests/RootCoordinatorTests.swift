@@ -57,6 +57,21 @@ private struct RootCoordinatorTests {
         #expect(splitViewController.column == .secondary)
     }
 
+    @Test("showURL: calls safari provider for view controller, presents it on root view controller")
+    func showURL() async {
+        let safariProvider = MockSafariProvider()
+        services.safariProvider = safariProvider
+        let url = URL(string: "https://www.example.com")!
+        let rootViewController = UIViewController()
+        subject.rootViewController = rootViewController
+        makeWindow(viewController: rootViewController)
+        subject.showURL(url)
+        #expect(safariProvider.methodsCalled == ["provide(for:)"])
+        #expect(safariProvider.url == url)
+        await #while(rootViewController.presentedViewController == nil)
+        #expect(rootViewController.presentedViewController is MockSafariViewController)
+    }
+
     @Test("top column for collapse is primary")
     func topColumn() {
         let result = subject.splitViewController(

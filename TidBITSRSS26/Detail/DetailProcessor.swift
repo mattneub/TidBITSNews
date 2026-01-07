@@ -20,6 +20,8 @@ final class DetailProcessor: Processor {
             services.persistence.saveSize(newFontSize)
             let jsToInject = "document.body.style.fontSize='\(newFontSize)px';'';"
             await presenter?.receive(.newFontSize(jsToInject))
+        case .doURL(let url):
+            coordinator?.showURL(url)
         case .goNext:
             await delegate?.goNext()
         case .goPrev:
@@ -29,6 +31,10 @@ final class DetailProcessor: Processor {
             state.fontSize = services.persistence.loadSize() ?? 18
             loadHTML()
             await presenter?.present(state)
+        case .tapTitle:
+            if let url = state.item.url {
+                coordinator?.showURL(url)
+            }
         }
     }
 

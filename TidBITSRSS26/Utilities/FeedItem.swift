@@ -12,6 +12,7 @@ struct FeedItem: Equatable, Codable {
     var isFirst: Bool = false
     var isLast: Bool = false
     var hasBeenRead: Bool = false
+    var url: URL?
 }
 
 extension FeedItem {
@@ -24,6 +25,7 @@ extension FeedItem {
         self.author = authorOfItem(item)
         self.pubDate = item.pubDate
         self.content = item.content.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.url = URL(string: item.link.href)
     }
 
     /// Munge the FDPItem's title to convert entities, of the form "&#123", to Unicode characters.

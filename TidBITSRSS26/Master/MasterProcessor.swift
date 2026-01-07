@@ -19,6 +19,11 @@ final class MasterProcessor: Processor {
             }
             // whether we succeeded or not, must now present to settle interface
             await presenter?.present(state)
+        case .logoTapped:
+            guard let url = URL(string:"https://www.tidbits.com") else {
+                return
+            }
+            coordinator?.showURL(url)
         case .selected(let row):
             state.selectedItemIndex = row
             var item = state.parsedData[row]

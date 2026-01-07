@@ -118,6 +118,13 @@ private struct MasterViewControllerTests {
         #expect(datasource.thingsReceived == [.select(0)])
     }
 
+    @Test("logoTapped: sends logoTapped")
+    func logoTapped() async {
+        subject.logoTapped()
+        await #while(processor.thingsReceived.isEmpty)
+        #expect(processor.thingsReceived == [.logoTapped])
+    }
+
     @Test("doRefresh: sends fetchFeed with forceNetwork true")
     func doRefresh() async {
         makeWindow(viewController: subject)

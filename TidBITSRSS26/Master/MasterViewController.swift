@@ -79,7 +79,11 @@ class MasterViewController: UITableViewController, ReceiverPresenter {
         await datasource.receive(effect)
     }
 
-    @objc func logoTapped() {}
+    @objc func logoTapped() {
+        Task {
+            await processor?.receive(.logoTapped)
+        }
+    }
 
     @objc func doRefresh(_ sender: UIRefreshControl) {
         Task {

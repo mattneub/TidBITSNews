@@ -10,6 +10,9 @@ class DetailViewController: UIViewController, ReceiverPresenter {
         drawer.isHidden = true
         drawer.adjustsFontForContentSizeCategory = true
         drawer.backgroundColor = .systemBackground
+        drawer.isUserInteractionEnabled = true
+        let tapper = MyTapGestureRecognizer(target: self, action: #selector(doTapTitle))
+        drawer.addGestureRecognizer(tapper)
     }
 
     lazy var webView = WKWebView(frame: .zero, configuration: WKWebViewConfiguration().applying {
@@ -17,6 +20,7 @@ class DetailViewController: UIViewController, ReceiverPresenter {
     }).applying {
         $0.allowsLinkPreview = false
         $0.translatesAutoresizingMaskIntoConstraints = false
+        $0.navigationDelegate = self
     }
 
     lazy var nextPrev = UISegmentedControl(
@@ -117,5 +121,36 @@ class DetailViewController: UIViewController, ReceiverPresenter {
             await processor?.receive(.changeFontSize)
         }
     }
+
+    func doURL(_ url: URL) {
+        Task {
+            await processor?.receive(.doURL(url))
+        }
+    }
+
+    @objc func doTapTitle() {
+        let oldColor = drawer.backgroundColor
+        self.drawer.backgroundColor = .systemYellow
+        Task {
+            try? await Task.sleep(for: .seconds(0.1))
+            self.drawer.backgroundColor = oldColor
+            await processor?.receive(.tapTitle)
+        }
+    }
 }
 
+extension DetailViewController: WKNavigationDelegate {
+    func webView(
+        _ webView: WKWebView,
+        decidePolicyFor navigationAction: WKNavigationAction
+    ) async -> WKNavigationActionPolicy {
+        if navigationAction.navigationType == .linkActivated {
+            if let url = navigationAction.request.url {
+                doURL(url)
+                return .cancel
+            }
+        }
+        // must always return _something_
+        return .allow
+    }
+}

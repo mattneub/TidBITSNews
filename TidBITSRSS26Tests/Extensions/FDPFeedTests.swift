@@ -54,7 +54,8 @@ private struct FDPFeedTests {
             content: "<p>Body.</p>",
             isFirst: false,
             isLast: false,
-            hasBeenRead: false
+            hasBeenRead: false,
+            url: URL(string: "https://tidbits.com/2023/03/10/linky/")
         ))
     }
 }

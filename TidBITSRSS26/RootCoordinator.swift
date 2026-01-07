@@ -3,6 +3,7 @@ import UIKit
 protocol RootCoordinatorType: AnyObject {
     func createInterface(window: UIWindow)
     func showDetail(item: FeedItem)
+    func showURL(_: URL)
 }
 
 final class RootCoordinator: RootCoordinatorType {
@@ -62,6 +63,11 @@ final class RootCoordinator: RootCoordinatorType {
         }
     }
 
+    func showURL(_ url: URL) {
+        let viewController = services.safariProvider.provide(for: url)
+        viewController.modalPresentationStyle = .overCurrentContext
+        rootViewController?.present(viewController, animated: unlessTesting(true))
+    }
 }
 
 extension RootCoordinator: UISplitViewControllerDelegate {

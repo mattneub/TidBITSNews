@@ -13,12 +13,16 @@ private struct DetailViewControllerTests {
     }
 
     @Test("drawer label is correctly constructed")
-    func drawer() {
+    func drawer() throws {
         let drawer = subject.drawer
         #expect(drawer.translatesAutoresizingMaskIntoConstraints == false)
         #expect(drawer.numberOfLines == 0)
         #expect(drawer.adjustsFontForContentSizeCategory == true)
         #expect(drawer.backgroundColor == .systemBackground)
+        #expect(drawer.isUserInteractionEnabled == true)
+        let tapper = try #require(drawer.gestureRecognizers?[0] as? MyTapGestureRecognizer)
+        #expect(tapper.target === subject)
+        #expect(tapper.action == #selector(subject.doTapTitle))
     }
 
     @Test("nextPrev segmented control is correctly constructed")
@@ -50,6 +54,7 @@ private struct DetailViewControllerTests {
         #expect(webView.configuration.suppressesIncrementalRendering == true)
         #expect(webView.allowsLinkPreview == false)
         #expect(webView.translatesAutoresizingMaskIntoConstraints == false)
+        #expect(webView.navigationDelegate === subject)
     }
 
     @Test("viewDidLoad: constructs the interface")
@@ -149,6 +154,49 @@ private struct DetailViewControllerTests {
         await #while(processor.thingsReceived.isEmpty)
         #expect(processor.thingsReceived == [.changeFontSize])
     }
+
+    @Test("doURL: sends doURL with URL")
+    func doURL() async {
+        let url = URL(string: "https://www.example.com")!
+        subject.doURL(url)
+        await #while(processor.thingsReceived.isEmpty)
+        #expect(processor.thingsReceived == [.doURL(url)])
+    }
+
+    @Test("doTapTitle: sends tapTitle, toggles drawer background color")
+    func doTapTitle() async {
+        subject.loadViewIfNeeded()
+        subject.doTapTitle()
+        await #while(subject.drawer.backgroundColor != .systemYellow)
+        #expect(subject.drawer.backgroundColor == .systemYellow)
+        await #while(processor.thingsReceived.isEmpty)
+        #expect(processor.thingsReceived == [.tapTitle])
+        #expect(subject.drawer.backgroundColor == .systemBackground)
+    }
+
+    @Test("decidePolicy: for linkActivated sends doURL, returns cancel")
+    func decidePolicyLinkActivated() async {
+        subject.loadViewIfNeeded()
+        let url = URL(string: "https://www.example.com")!
+        let request = URLRequest(url: url)
+        let action = MockNavigationAction(request: request, navigationType: .linkActivated)
+        let result = await subject.webView(subject.webView, decidePolicyFor: action)
+        #expect(result == .cancel)
+        await #while(processor.thingsReceived.isEmpty)
+        #expect(processor.thingsReceived == [.doURL(url)])
+    }
+
+    @Test("decidePolicy: for anything else returns allow")
+    func decidePolicyOther() async {
+        subject.loadViewIfNeeded()
+        let url = URL(string: "https://www.example.com")!
+        let request = URLRequest(url: url)
+        let action = MockNavigationAction(request: request, navigationType: .other)
+        let result = await subject.webView(subject.webView, decidePolicyFor: action)
+        #expect(result == .allow)
+        try? await Task.sleep(for: .seconds(0.1))
+        #expect(processor.thingsReceived.isEmpty)
+    }
 }
 
 private final class MockWebView: WKWebView {
@@ -161,5 +209,19 @@ private final class MockWebView: WKWebView {
         self.string = string
         self.baseURL = baseURL
         return nil
+    }
+}
+
+private final class MockNavigationAction: WKNavigationAction {
+    let myRequest: URLRequest
+    let myNavigationType: WKNavigationType
+
+    override var request: URLRequest { myRequest }
+    override var navigationType: WKNavigationType { myNavigationType }
+
+    init(request: URLRequest, navigationType: WKNavigationType) {
+        self.myRequest = request
+        self.myNavigationType = navigationType
+        super.init()
     }
 }

@@ -51,14 +51,17 @@ private struct FeedFetcherTests {
         item._guid = "testing"
         item._title = "title"
         item._pubDate = Date.distantPast
+        let link = MockFDPLink()
+        link._href = "http://www.example.com"
+        item._link = link
         feed._items = [item]
         MockFeedParser.feedToReturn = feed
         let result = try? await subject.fetchFeed()
         #expect(persistence.methodsCalled == ["loadFeed()", "saveFeed(_:)"])
-        #expect(persistence.feed == [FeedItem(title: "title", guid: "testing")])
+        #expect(persistence.feed == [FeedItem(title: "title", guid: "testing", url: URL(string: "http://www.example.com"))])
         #expect(MockFeedParser.methodsCalled == ["parsedFeed(with:)"])
         #expect(MockFeedParser.data == "howdy".data(using: .utf8))
-        #expect(result?.items == [FeedItem(title: "title", guid: "testing")])
+        #expect(result?.items == [FeedItem(title: "title", guid: "testing", url: URL(string: "http://www.example.com"))])
         #expect(result?.type == .network)
     }
 
@@ -94,14 +97,17 @@ private struct FeedFetcherTests {
         item._guid = "testing"
         item._title = "title"
         item._pubDate = Date.distantPast
+        let link = MockFDPLink()
+        link._href = "http://www.example.com"
+        item._link = link
         feed._items = [item]
         MockFeedParser.feedToReturn = feed
         let result = try? await subject.fetchFeed(true) // *
         #expect(persistence.methodsCalled == ["saveFeed(_:)"]) // *
-        #expect(persistence.feed == [FeedItem(title: "title", guid: "testing")])
+        #expect(persistence.feed == [FeedItem(title: "title", guid: "testing", url: URL(string: "http://www.example.com"))])
         #expect(MockFeedParser.methodsCalled == ["parsedFeed(with:)"])
         #expect(MockFeedParser.data == "howdy".data(using: .utf8))
-        #expect(result?.items == [FeedItem(title: "title", guid: "testing")])
+        #expect(result?.items == [FeedItem(title: "title", guid: "testing", url: URL(string: "http://www.example.com"))])
         #expect(result?.type == .network)
     }
 }
