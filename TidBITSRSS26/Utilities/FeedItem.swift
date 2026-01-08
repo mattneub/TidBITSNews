@@ -28,20 +28,9 @@ extension FeedItem {
         self.url = URL(string: item.link.href)
     }
 
-    /// Munge the FDPItem's title to convert entities, of the form "&#123", to Unicode characters.
-    /// - Parameter item: The FDPItem.
-    /// - Returns: The munged title.
     nonisolated func titleOfItem(_ item: FDPItem) -> String {
-        var result = item.title ?? ""
-        // deal with entities; in real life we seem to get just one sort of case,
-        // which I can find and convert with a single regular expression
-        // that catches three or four digit decimal encoding
-        for match in result.matches(of: /&#(\d\d\d\d?);/).reversed() {
-            if let code = Int(match.output.1), let scalar = UnicodeScalar(code) {
-                result.replaceSubrange(match.range, with: String(scalar))
-            }
-        }
-        return result.trimmingCharacters(in: .whitespacesAndNewlines)
+        let result = item.title ?? ""
+        return result.dealingWithEntities.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     nonisolated func blurbOfItem(_ item: FDPItem) -> String? {
@@ -61,8 +50,8 @@ extension FeedItem {
         blurb.replace(/[\n\r]/, with: " ")
         // remove stray html tags
         blurb.replace(/<.*?>/, with: "")
-        // trim and return
-        return blurb.trimmingCharacters(in: .whitespacesAndNewlines)
+        // munge, trim, and return
+        return blurb.dealingWithEntities.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     nonisolated func authorOfItem(_ item: FDPItem) -> String? {

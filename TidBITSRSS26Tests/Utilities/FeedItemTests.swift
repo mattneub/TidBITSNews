@@ -27,7 +27,7 @@ private struct FeedItemTests {
         #expect(subject.title == "Héllö")
     }
 
-    @Test("blurb correctly extracts blurb, author correctly extracts author")
+    @Test("blurb correctly extracts blurb and deals with entities, author correctly extracts author")
     func blurbAndAuthor() {
         // I think the simplest way to do this is to let the feed parser parse some actual XML...
         let xml = """
@@ -54,7 +54,7 @@ private struct FeedItemTests {
                 <![CDATA[Adam Engst]]>
             </tidbits:app_author_name>
             <tidbits:app_blurb>
-                <![CDATA[hey nonny\n<i>nonny</i>]]>
+                <![CDATA[H&#233;ll&#246; hey nonny\n<i>nonny</i>]]>
             </tidbits:app_blurb>
             <description>
                 <![CDATA[<p>Body.</p>]]>
@@ -67,7 +67,7 @@ private struct FeedItemTests {
         let feed = try! FDPParser.parsedFeed(with: xmlData)
         let item = feed.items.first as! FDPItem
         let subject = FeedItem(fdpItem: item)
-        #expect(subject.blurb == "hey nonny nonny")
+        #expect(subject.blurb == "Héllö hey nonny nonny")
         #expect(subject.author == "Adam Engst")
     }
 
