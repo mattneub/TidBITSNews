@@ -24,15 +24,16 @@ final class FeedFetcher: FeedFetcherType {
         )
     }
 
-    /// Session to be used if we have to do actual networking; it's a var so we can mock it for testing.
-    lazy var session: URLSession = {
+    /// Provider of session  to be used if we have to do actual networking; it's a
+    /// provider so we are not hanging onto it, and it's a var so we can mock it for testing.
+    lazy var sessionProvider: @Sendable () -> URLSession = {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
         configuration.timeoutIntervalForResource = 60
         configuration.waitsForConnectivity = false // fail now if you can't connect, please
         let session = URLSession(configuration: configuration)
         return session
-    }()
+    }
 
     @concurrent
     func reallyFetchFeed(_ network: Bool) async throws -> ([FeedItem], FetchType)? {
@@ -52,7 +53,7 @@ final class FeedFetcher: FeedFetcherType {
         }
         if let url = URL(string: "https://tidbits.com/feeds/app_feed.rss") {
             let request = URLRequest(url: url)
-            let (data, _) = try await session.data(for: request)
+            let (data, _) = try await sessionProvider().data(for: request)
             let feed = try await services.feedParser.parsedFeed(with: data)
             let items = feed.toFeedItems
             await services.persistence.saveFeed(items)

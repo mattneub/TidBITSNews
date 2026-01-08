@@ -6,23 +6,23 @@ private struct FeedFetcherTests {
     let subject = FeedFetcher()
     let persistence = MockPersistence()
 
-    static var session: URLSession = {
+    nonisolated func sessionProvider() -> URLSession {
         let configuration: URLSessionConfiguration = .ephemeral
         configuration.protocolClasses = [MockURLProtocol.self]
         return URLSession(configuration: configuration)
-    }()
+    }
 
     init() {
         services.feedParser = MockFeedParser.self
         services.persistence = persistence
         MockFeedParser.prepare()
-        subject.session = Self.session
+        subject.sessionProvider = sessionProvider
     }
 
     @Test("subject's native session configuration is correct")
     func subjectSession() {
         let subject = FeedFetcher()
-        let session = subject.session
+        let session = subject.sessionProvider()
         let configuration = session.configuration
         #expect(configuration.requestCachePolicy == .reloadIgnoringLocalCacheData)
         #expect(configuration.timeoutIntervalForResource == 60)
