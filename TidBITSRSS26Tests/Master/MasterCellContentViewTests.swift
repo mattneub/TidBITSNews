@@ -28,6 +28,7 @@ private struct MasterCellContentViewTests {
         #expect(subject.accessibilityElements as? [UIView] == [subject.drawer])
         #expect(subject.drawer.accessibilityTraits == .button)
         #expect(subject.hasBeenRead.image == UIImage(systemName: "circle.fill"))
+        #expect(subject.hasBeenRead.tintColor == .myPurple)
         #expect(subject.hasBeenRead.constraints[0].firstAttribute == .width)
         #expect(subject.hasBeenRead.constraints[0].constant == 18)
         #expect(subject.hasBeenRead.constraints[1].firstAttribute == .height)

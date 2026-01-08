@@ -12,6 +12,7 @@ class MasterCellContentView: UIView, UIContentView {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.widthAnchor.constraint(equalToConstant: 18).activate()
         $0.heightAnchor.constraint(equalToConstant: 18).activate()
+        $0.tintColor = .myPurple
     }
 
     /// Boilerplate.

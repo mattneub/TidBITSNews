@@ -77,12 +77,12 @@ extension FeedItem {
         let title = self.title + "\n"
         let content1 = AttributedString(title, attributes: AttributeContainer()
             .font(actualHeadlineFont)
-            .foregroundColor(.label)
+            .foregroundColor(UIColor.label)
         )
         let blurb = self.blurb ?? ""
         let content2 = AttributedString(blurb, attributes: AttributeContainer()
             .font(blurbFont)
-            .foregroundColor(.label)
+            .foregroundColor(UIColor.label)
         )
         let content = content1 + content2
         return NSAttributedString(content)

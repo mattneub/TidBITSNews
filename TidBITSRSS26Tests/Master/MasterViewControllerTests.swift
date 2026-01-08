@@ -57,6 +57,7 @@ private struct MasterViewControllerTests {
         #expect(imageView.translatesAutoresizingMaskIntoConstraints == false)
         #expect(imageView.constraints[0].firstAttribute == .height)
         #expect(imageView.constraints[0].constant == 58)
+        #expect(imageView.constraints[0].priority.rawValue == 999)
         #expect(imageView.isUserInteractionEnabled == true)
         let tapper = try #require(imageView.gestureRecognizers?.first as? MyTapGestureRecognizer)
         #expect(tapper.target === subject)

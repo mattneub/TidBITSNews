@@ -82,8 +82,8 @@ class DetailViewController: UIViewController, ReceiverPresenter {
         view.addSubview(webView)
         NSLayoutConstraint.activate([
             drawer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            drawer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            drawer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            drawer.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            drawer.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             webView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
