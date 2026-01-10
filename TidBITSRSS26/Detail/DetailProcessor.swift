@@ -29,6 +29,7 @@ final class DetailProcessor: Processor {
         case .newItem(let newItem):
             state.item = newItem
             state.fontSize = services.persistence.loadSize() ?? 18
+            state.pad = services.padKnower.isPad()
             loadHTML()
             await presenter?.present(state)
         case .tapTitle:

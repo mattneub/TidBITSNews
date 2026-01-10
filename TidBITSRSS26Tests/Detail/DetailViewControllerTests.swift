@@ -101,34 +101,18 @@ private struct DetailViewControllerTests {
         #expect(subject.drawer.attributedText == state.item.attributedTitle)
     }
 
-    @Test("present: does further substitution on contentString, loads web view with result")
+    @Test("present: loads web view with content string")
     func presentWebView() async {
-        subject.traitOverrides.userInterfaceIdiom = .phone
         let webView = MockWebView()
         subject.webView = webView
         let state = DetailState(
-            template: "<margin> is 5",
+            template: "template",
             templateURL: URL(string: "https://www.example.com")
         )
         await subject.present(state)
         #expect(webView.methodsCalled == ["loadHTMLString(_:baseURL:)"])
         #expect(webView.baseURL == URL(string: "https://www.example.com")!)
-        #expect(webView.string == "5 is 5")
-    }
-
-    @Test("present: does further substitution on contentString, loads web view with result, iPad version")
-    func presentWebViewPad() async {
-        subject.traitOverrides.userInterfaceIdiom = .pad
-        let webView = MockWebView()
-        subject.webView = webView
-        let state = DetailState(
-            template: "<margin> is 20",
-            templateURL: URL(string: "https://www.example.com")
-        )
-        await subject.present(state)
-        #expect(webView.methodsCalled == ["loadHTMLString(_:baseURL:)"])
-        #expect(webView.baseURL == URL(string: "https://www.example.com")!)
-        #expect(webView.string == "20 is 20")
+        #expect(webView.string == "template")
     }
 
     @Test("present: sets segmented control segment enablements based on state")

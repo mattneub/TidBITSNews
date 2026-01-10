@@ -15,25 +15,48 @@ private struct DetailStateTests {
             pubDate: date,
             content: "Content"
         )
+        subject.pad = true
         subject.template = """
         <maximagewidth> is 80%
         <fontsize> is 18
-        <margin> is 5
         <guid> is guid
         <author> is Author
         <content> is Content
         http:// is https://
         <date> is 10 August 1954
+        <margin> is 20
         """
         #expect(subject.contentString == """
         80% is 80%
         18 is 18
-        <margin> is 5
         guid is guid
         Author is Author
         Content is Content
         https:// is https://
         10 August 1954 is 10 August 1954
+        20 is 20
+        """)
+        // and when pad is false?
+        subject.pad = false
+        subject.template = """
+        <maximagewidth> is 80%
+        <fontsize> is 18
+        <guid> is guid
+        <author> is Author
+        <content> is Content
+        http:// is https://
+        <date> is 10 August 1954
+        <margin> is 5
+        """
+        #expect(subject.contentString == """
+        80% is 80%
+        18 is 18
+        guid is guid
+        Author is Author
+        Content is Content
+        https:// is https://
+        10 August 1954 is 10 August 1954
+        5 is 5
         """)
     }
 }

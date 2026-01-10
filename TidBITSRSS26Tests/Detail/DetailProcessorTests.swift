@@ -6,6 +6,7 @@ private struct DetailProcessorTests {
     let presenter = MockReceiverPresenter<DetailEffect, DetailState>()
     let delegate = MockDelegate()
     let bundle = MockBundle()
+    let padKnower = MockPadKnower()
     let persistence = MockPersistence()
     let coordinator = MockRootCoordinator()
 
@@ -14,6 +15,7 @@ private struct DetailProcessorTests {
         subject.delegate = delegate
         subject.coordinator = coordinator
         services.bundle = bundle
+        services.padKnower = padKnower
         services.persistence = persistence
     }
 
@@ -55,9 +57,13 @@ private struct DetailProcessorTests {
     @Test("receive newItem: sets item into state and presents it")
     func newItem() async {
         persistence.size = 23
+        padKnower.boolToReturn = true
         let newItem = FeedItem(guid: "newguid")
         await subject.receive(.newItem(newItem))
+        #expect(persistence.methodsCalled == ["loadSize()"])
+        #expect(padKnower.methodsCalled == ["isPad()"])
         #expect(subject.state.fontSize == 23)
+        #expect(subject.state.pad == true)
         #expect(subject.state.item.guid == "newguid")
         #expect(presenter.statesPresented.first?.item.guid == "newguid")
         // when no size, 18 is used
