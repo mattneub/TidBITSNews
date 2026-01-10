@@ -79,15 +79,13 @@ final class MasterDatasource: NSObject, MasterDatasourceType {
     func receive(_ effect: MasterEffect) async {
         switch effect {
         case .reloadTable:
+            let selected = tableView?.indexPathForSelectedRow
             let snapshot = datasource.snapshot()
             await datasource.applySnapshotUsingReloadData(snapshot)
+            tableView?.selectRow(at: selected, animated: false, scrollPosition: .none)
         case .select(let row):
             let indexPath = IndexPath(row: row, section: 0)
-            tableView?.selectRow(
-                at: indexPath,
-                animated: true,
-                scrollPosition: .middle
-            )
+            tableView?.selectRow(at: indexPath, animated: true, scrollPosition: .middle)
             updateHasBeenRead(true, for: indexPath)
         }
     }

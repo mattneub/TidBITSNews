@@ -71,13 +71,17 @@ private struct MasterProcessorTests {
         #expect(persistence.date == subject.state.lastNetworkFetchDate)
     }
 
-    @Test("receive fetchFeed: presents even if the call to feed fetcher throws")
+    @Test("receive fetchFeed: presents even if the call to feed fetcher throws, and calls coordinator showAlert")
     func fetchFeedThrow() async {
         #expect(presenter.statesPresented.isEmpty)
         enum Oops: Error { case ouch }
         feedFetcher.errorToThrow = Oops.ouch
         await subject.receive(.fetchFeed(forceNetwork: false))
         #expect(presenter.statesPresented == [subject.state])
+        #expect(coordinator.methodsCalled == ["showAlert(title:message:buttonTitles:)"])
+        #expect(coordinator.title == "Error")
+        #expect(coordinator.message == "We had a problem fetching or decoding the feed. Please try again later.")
+        #expect(coordinator.buttonTitles == ["OK"])
     }
 
     @Test("receive logoTapped: calls coordinator showURL")

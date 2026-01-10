@@ -4,6 +4,7 @@ protocol RootCoordinatorType: AnyObject {
     func createInterface(window: UIWindow)
     func showDetail(item: FeedItem)
     func showURL(_: URL)
+    @discardableResult func showAlert(title: String?, message: String?, buttonTitles: [String]) async -> String?
 }
 
 final class RootCoordinator: RootCoordinatorType {
@@ -56,6 +57,25 @@ final class RootCoordinator: RootCoordinatorType {
         viewController.modalPresentationStyle = .overCurrentContext
         rootViewController?.present(viewController, animated: unlessTesting(true))
     }
+
+    /// Secondary reference to the continuation on `showAlert`, so we can resume it from tests.
+    var alertContinuation: CheckedContinuation<String?, Never>?
+
+    func showAlert(title: String?, message: String?, buttonTitles: [String]) async -> String? {
+        guard !(title == nil && message == nil) else { return nil }
+        return await withCheckedContinuation { continuation in
+            self.alertContinuation = continuation
+            let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+            for title in buttonTitles {
+                alert.addAction(UIAlertAction(title: title, style: .default, handler: { action in
+                    continuation.resume(returning: action.title)
+                    self.alertContinuation = nil
+                }))
+            }
+            rootViewController?.present(alert, animated: unlessTesting(true))
+        }
+    }
+
 }
 
 extension RootCoordinator: UISplitViewControllerDelegate {

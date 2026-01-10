@@ -61,8 +61,13 @@ class MasterViewController: UITableViewController, ReceiverPresenter {
         }
     }
 
+    var firstTime = true
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        guard firstTime else {
+            return
+        }
+        firstTime = false
         Task {
             await processor?.receive(.viewDidAppear)
         }

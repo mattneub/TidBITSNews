@@ -88,11 +88,14 @@ private struct MasterViewControllerTests {
         #expect(subject.spinner.isDescendant(of: subject.view))
     }
 
-    @Test("viewDidAppear: sends processor viewDidAppear")
+    @Test("viewDidAppear: sends processor viewDidAppear, only once")
     func viewDidAppear() async {
         subject.viewDidAppear(false)
         await #while(processor.thingsReceived.isEmpty)
         #expect(processor.thingsReceived == [.viewDidAppear])
+        subject.viewDidAppear(false)
+        try? await Task.sleep(for: .seconds(0.1))
+        #expect(processor.thingsReceived == [.viewDidAppear]) // only once
     }
 
     @Test("present: presents to the datasource")

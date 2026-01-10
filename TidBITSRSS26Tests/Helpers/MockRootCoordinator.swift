@@ -6,6 +6,10 @@ final class MockRootCoordinator: RootCoordinatorType {
     var window: UIWindow?
     var feedItem: FeedItem?
     var url: URL?
+    var title: String?
+    var message: String?
+    var buttonTitles = [String]()
+    var titleToReturn: String? = nil
 
     func createInterface(window: UIWindow) {
         methodsCalled.append(#function)
@@ -21,5 +25,14 @@ final class MockRootCoordinator: RootCoordinatorType {
         methodsCalled.append(#function)
         self.url = url
     }
+
+    func showAlert(title: String?, message: String?, buttonTitles: [String]) async -> String? {
+        methodsCalled.append(#function)
+        self.title = title
+        self.message = message
+        self.buttonTitles = buttonTitles
+        return titleToReturn
+    }
+
 }
 

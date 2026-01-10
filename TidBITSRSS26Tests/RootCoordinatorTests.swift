@@ -65,6 +65,26 @@ private struct RootCoordinatorTests {
         #expect(rootViewController.presentedViewController is MockSafariViewController)
     }
 
+    @Test("showAlert puts up the specified alert, returns tapped button title")
+    func showAlert() async throws {
+        let viewController = UIViewController()
+        makeWindow(viewController: viewController)
+        subject.rootViewController = viewController
+        var result: String?
+        Task {
+            result = await subject.showAlert(title: "title", message: "message", buttonTitles: ["button1", "button2"])
+        }
+        await #while(viewController.presentedViewController == nil)
+        let alert = try #require(viewController.presentedViewController as? UIAlertController)
+        #expect(alert.title == "title")
+        #expect(alert.message == "message")
+        #expect(alert.actions[0].title == "button1")
+        #expect(alert.actions[1].title == "button2")
+        alert.tapButton(atIndex: 0)
+        await #while(result == nil)
+        #expect(result == "button1")
+    }
+
     @Test("top column for collapse is primary")
     func topColumn() {
         let result = subject.splitViewController(

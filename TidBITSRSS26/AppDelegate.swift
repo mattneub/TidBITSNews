@@ -11,7 +11,3 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 }
-
-// TODO: Accessibility
-
-// TODO: What happens when you tap a link or the header or title or whatever

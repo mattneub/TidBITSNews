@@ -33,7 +33,7 @@ private struct MasterDatasourceTests {
         #expect(snapshot.itemIdentifiers(inSection: "dummy") == ["testing"])
     }
 
-    @Test("receive reloadTable: updates cell configurations from data")
+    @Test("receive reloadTable: updates cell configurations from data, maintains selection")
     func reloadTable() async throws {
         makeWindow(view: tableView)
         let item = FeedItem(title: "Testing", guid: "testing")
@@ -41,10 +41,12 @@ private struct MasterDatasourceTests {
         let cell = try #require(tableView.cellForRow(at: IndexPath(row: 0, section: 0)))
         var configuration = try #require(cell.contentConfiguration as? MasterCellContentConfiguration)
         #expect(configuration.text?.string == "Testing\n")
+        tableView.selectRow(at: IndexPath(row: 0, section: 0), animated: false, scrollPosition: .none)
         subject.data[0].title = "Testing2"
         await subject.receive(.reloadTable)
         configuration = try #require(cell.contentConfiguration as? MasterCellContentConfiguration)
         #expect(configuration.text?.string == "Testing2\n")
+        #expect(tableView.indexPathForSelectedRow == IndexPath(row: 0, section: 0))
     }
 
     @Test("receive select: selects the row of the table view, updates the data, updates the cell configuration")

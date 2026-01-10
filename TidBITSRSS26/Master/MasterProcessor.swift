@@ -11,14 +11,18 @@ final class MasterProcessor: Processor {
         switch action {
         case .appearing:
             await presenter?.receive(.reloadTable)
-        case .fetchFeed(let force):
+        case .fetchFeed(let forceNetwork):
+            var errorReceived: (any Error)? = nil
             do {
-                try await fetchFeed(forceNetwork: force)
+                try await fetchFeed(forceNetwork: forceNetwork)
             } catch {
-                print(error) // TODO: show user an alert?
+                errorReceived = error
             }
             // whether we succeeded or not, must now present to settle interface
             await presenter?.present(state)
+            if errorReceived != nil {
+                await coordinator?.showAlert(title: "Error", message: "We had a problem fetching or decoding the feed. Please try again later.", buttonTitles: ["OK"])
+            }
         case .logoTapped:
             guard let url = URL(string:"https://www.tidbits.com") else {
                 return
