@@ -10,30 +10,18 @@ final class RootCoordinator: RootCoordinatorType {
     weak var rootViewController: UIViewController?
 
     var splitViewController: UISplitViewController? {
-        rootViewController?.children.first as? UISplitViewController
+        rootViewController as? UISplitViewController
     }
 
-    var rootProcessor: (any Processor<RootAction, RootState, Void>)?
     var masterProcessor: (any Processor<MasterAction, MasterState, MasterEffect>)?
     var detailProcessor: (any Processor<DetailAction, DetailState, DetailEffect>)?
 
     func createInterface(window: UIWindow) {
-        do {
-            let processor = RootProcessor()
-            self.rootProcessor = processor
-            processor.coordinator = self
-            let viewController = RootViewController()
-            processor.presenter = viewController
-            viewController.processor = processor
-            window.rootViewController = viewController
-            self.rootViewController = viewController
-        }
         let splitViewController = UISplitViewController(style: .doubleColumn)
-        rootViewController?.addChild(splitViewController)
-        rootViewController?.view.addSubview(splitViewController.view)
-        splitViewController.view.frame = rootViewController?.view.bounds ?? .zero
-        splitViewController.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        self.rootViewController = splitViewController
+        window.rootViewController = splitViewController
         splitViewController.preferredSplitBehavior = .tile
+        splitViewController.preferredDisplayMode = .oneBesideSecondary
         splitViewController.delegate = self
         do {
             let processor = MasterProcessor()

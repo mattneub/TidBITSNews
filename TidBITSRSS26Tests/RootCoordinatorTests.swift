@@ -10,17 +10,12 @@ private struct RootCoordinatorTests {
     func createInterface() throws {
         let window = UIWindow()
         subject.createInterface(window: window)
-        let processor = try #require(subject.rootProcessor as? RootProcessor)
-        #expect(processor.coordinator === subject)
-        let viewController = try #require(processor.presenter as? RootViewController)
-        #expect(viewController.processor === processor)
-        #expect(window.rootViewController === viewController)
-        #expect(viewController.children.count == 1)
-        #expect(viewController.children.first is UISplitViewController)
-        #expect(subject.splitViewController === viewController.children.first)
-        #expect(subject.splitViewController!.view.isDescendant(of: viewController.view))
+        #expect(subject.rootViewController is UISplitViewController)
+        #expect(window.rootViewController === subject.rootViewController)
+        #expect(subject.splitViewController === subject.rootViewController)
         #expect(subject.splitViewController!.style == .doubleColumn)
-        #expect(subject.splitViewController!.splitBehavior == .tile)
+        #expect(subject.splitViewController!.preferredSplitBehavior == .tile)
+        #expect(subject.splitViewController!.preferredDisplayMode == .oneBesideSecondary)
         #expect(subject.splitViewController!.delegate === subject)
         do {
             let viewController = try #require(subject.splitViewController?.viewControllers[0] as? MasterViewController)
@@ -46,9 +41,7 @@ private struct RootCoordinatorTests {
         let processor = MockProcessor<DetailAction, DetailState, DetailEffect>()
         subject.detailProcessor = processor
         let splitViewController = MockSplitViewController()
-        let viewController = UIViewController()
-        subject.rootViewController = viewController
-        viewController.addChild(splitViewController)
+        subject.rootViewController = splitViewController
         let item = FeedItem(guid: "newguid")
         subject.showDetail(item: item)
         await #while(processor.thingsReceived.isEmpty)
