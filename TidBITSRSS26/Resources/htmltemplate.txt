@@ -25,6 +25,15 @@ margin-right: auto;
 max-width: 90%;
 height: auto;
 }
+img.wp-smiley {
+display: inline;
+margin-top: 0em;
+margin-bottom: -0.2em;
+margin-left: 0.2em;
+margin-right: 0.2em;
+width: 1em;
+height: auto;
+}
 h2 {
 font-size: 100%;
 }
